@@ -695,6 +695,7 @@ export function Contact() {
         body: JSON.stringify({
           name,
           email,
+          _replyto: email,
           phone,
           _subject: `[Portfolio] ${subject}`,
           message,
@@ -702,7 +703,10 @@ export function Contact() {
           _captcha: "false",
         }),
       });
-      if (!res.ok) throw new Error("Failed");
+      const result = await res.json();
+      if (!res.ok || result.success === false || result.success === "false") {
+        throw new Error(result.message || "Failed");
+      }
       toast.success(t("contact.success"));
       setValues({ name: "", email: "", phone: "", subject: "", message: "" });
       setErrors({});

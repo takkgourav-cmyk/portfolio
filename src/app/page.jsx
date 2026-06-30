@@ -15,7 +15,6 @@ import { Toaster } from "@/components/ui/sonner";
 import {
   LoadingScreen,
   ScrollProgress,
-  CursorEffects,
   BackToTop,
 } from "@/components/portfolio/Effects";
 
@@ -24,7 +23,6 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <LoadingScreen />
       <ScrollProgress />
-      <CursorEffects />
       <Navbar />
       <RevealMount />
       <main>

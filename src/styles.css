@@ -192,44 +192,6 @@
   }
 }
 
-/* ============= Custom Cursor ============= */
-@media (pointer: fine) {
-  body { cursor: none; }
-  a, button, input, textarea, select, label, [role="button"] { cursor: none; }
-}
-
-.custom-cursor-dot {
-  position: fixed;
-  top: 0; left: 0;
-  width: 6px; height: 6px;
-  border-radius: 9999px;
-  background: var(--color-primary);
-  pointer-events: none;
-  z-index: 10001;
-  mix-blend-mode: difference;
-}
-.custom-cursor-ring {
-  position: fixed;
-  top: 0; left: 0;
-  width: 36px; height: 36px;
-  border-radius: 9999px;
-  border: 1.5px solid var(--color-foreground);
-  pointer-events: none;
-  z-index: 10000;
-  transition: border-color .2s;
-}
-
-/* ============= Click Ripple ============= */
-.click-ripple {
-  position: fixed;
-  width: 24px; height: 24px;
-  border-radius: 9999px;
-  background: radial-gradient(circle, var(--color-primary), transparent 70%);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-}
-
 /* ============= Typing Caret ============= */
 .typing-caret {
   display: inline-block;
