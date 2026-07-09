@@ -12,11 +12,11 @@ const text = {
   "hero.stat.years": "Year coding",
   "hero.badge.react": "React - Next.js",
   "hero.badge.ui": "UI / UX",
-  "typing.1": "I build modern websites.",
-  "typing.2": "I craft delightful UI.",
-  "typing.3": "I love React & Next.js.",
-  "typing.4": "I turn ideas into pixels.",
-  "typing.5": "Let's build something great.",
+  "typing.1": "Frontend Developer",
+  "typing.2": "React Developer",
+  "typing.3": "Next.js Developer",
+  "typing.4": "UI Developer",
+  "typing.5": "Web Developer",
   "about.eyebrow": "About Me",
   "about.title": "A quick intro",
   "about.who.title": "Who I am",
@@ -105,4 +105,3 @@ export function useContent() {
     t: (key) => text[key] ?? key,
   };
 }
-

@@ -1,16 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import {
-  ArrowDown,
   Briefcase,
   Code2,
   Download,
   Github,
+  Instagram,
   GraduationCap,
   Layout,
   Linkedin,
@@ -19,13 +19,12 @@ import {
   Palette,
   Phone,
   Server,
-  Sparkles,
   Star,
   ExternalLink,
   Send,
   Award,
 } from "lucide-react";
-import profile from "@/assets/profile.jpg";
+import profile from "@/assets/profile-developer.webp";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -89,41 +88,52 @@ export function Typewriter({ keys, className }) {
   );
 }
 
-function CountUp({ end, suffix, label }) {
+function CountNumber({ end, suffix = "", className = "", duration = 1500 }) {
   const [count, setCount] = React.useState(0);
   const ref = useRef(null);
   const hasAnimated = useRef(false);
 
   useEffect(() => {
     if (!ref.current) return;
+    let frame;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasAnimated.current) {
             hasAnimated.current = true;
-            const duration = 1500;
             const startTime = performance.now();
             const tick = (now) => {
               const progress = Math.min((now - startTime) / duration, 1);
               const eased = 1 - Math.pow(1 - progress, 3);
               const current = Math.floor(eased * end);
               setCount(current);
-              if (progress < 1) requestAnimationFrame(tick);
+              if (progress < 1) frame = requestAnimationFrame(tick);
             };
-            requestAnimationFrame(tick);
+            frame = requestAnimationFrame(tick);
           }
         });
       },
       { threshold: 0.3 }
     );
     observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end]);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [duration, end]);
 
   return (
-    <div ref={ref}>
+    <span ref={ref} className={className}>
+      {count}{suffix}
+    </span>
+  );
+}
+
+function CountUp({ end, suffix, label }) {
+  return (
+    <div>
       <div className="text-2xl font-bold gradient-text">
-        {count}{suffix}
+        <CountNumber end={end} suffix={suffix} />
       </div>
       {label && <div className="text-muted-foreground">{label}</div>}
     </div>
@@ -132,78 +142,106 @@ function CountUp({ end, suffix, label }) {
 
 export function Hero() {
   const ref = useRef(null);
+  const floatRef = useRef(null);
   const faceRef = useRef(null);
   const { t } = useContent();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const root = ref.current;
+    let frame;
     const ctx = gsap.context(() => {
-      gsap.from(".hero-anim", {
-        y: 30,
-        opacity: 0,
-        duration: 0.9,
-        ease: "power3.out",
-        stagger: 0.12,
-      });
-      gsap.from(".hero-img", {
-        scale: 0.85,
-        opacity: 0,
-        duration: 1.1,
-        ease: "power3.out",
-      });
-      gsap.to(".float", {
-        y: -14,
-        duration: 2.5,
+      const heroItems = gsap.utils.toArray(".hero-anim");
+      const heroImage = root.querySelector(".hero-img");
+      gsap.set([...heroItems, heroImage], { opacity: 1, visibility: "visible" });
+      gsap.fromTo(
+        heroItems,
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.75, ease: "power3.out", stagger: 0.09, clearProps: "transform,opacity,visibility" }
+      );
+      gsap.fromTo(
+        heroImage,
+        { x: 70, y: 18, scale: 0.9, rotate: 3, opacity: 0 },
+        {
+          x: 0,
+          y: 0,
+          scale: 1,
+          rotate: 0,
+          opacity: 1,
+          duration: 1.05,
+          ease: "power3.out",
+          clearProps: "transform,opacity,visibility",
+          scrollTrigger: {
+            trigger: root,
+            start: "top 88%",
+            once: true,
+          },
+        }
+      );
+      frame = requestAnimationFrame(() => ScrollTrigger.refresh());
+      gsap.to(floatRef.current, {
+        y: -9,
+        duration: 3.4,
         ease: "sine.inOut",
         repeat: -1,
         yoyo: true,
       });
-      /* Parallax on hero image while scrolling */
-      gsap.to(".hero-img", {
-        yPercent: 18,
-        ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom top", scrub: true },
-      });
       gsap.to(".hero-bg-orb", {
-        yPercent: -30,
+        yPercent: -12,
         ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom top", scrub: true },
+        scrollTrigger: { trigger: root, start: "top top", end: "bottom top", scrub: true },
       });
-      gsap.to(".hero-anim", {
-        opacity: 0.25,
-        y: -50,
-        ease: "none",
-        stagger: 0.02,
-        scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom 30%", scrub: true },
-      });
-      gsap.to(".hero-img", {
-        scale: 0.82,
-        rotate: -5,
-        ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom top", scrub: true },
-      });
-    }, ref);
+    }, root);
 
-    const onMouseMove = (e) => {
-      const face = faceRef.current;
-      if (!face) return;
-      const r = face.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = (e.clientX - cx) / window.innerWidth;
-      const dy = (e.clientY - cy) / window.innerHeight;
-      gsap.to(face, {
-        rotateY: dx * 24,
-        rotateX: -dy * 24,
-        transformPerspective: 900,
-        transformOrigin: "center",
-        duration: 0.6,
-        ease: "power2.out",
-      });
-    };
-    window.addEventListener("mousemove", onMouseMove);
+    const heroImage = root.querySelector(".hero-img");
+    const face = faceRef.current;
+    const finePointer = window.matchMedia("(min-width: 768px) and (pointer: fine)").matches;
+    let onParallax;
+    let onTilt;
+    let onTiltLeave;
+
+    if (finePointer && heroImage && face) {
+      onParallax = (event) => {
+        const x = (event.clientX / window.innerWidth - 0.5) * 14;
+        const y = (event.clientY / window.innerHeight - 0.5) * 10;
+        gsap.to(heroImage, { x, y, duration: 0.8, ease: "power2.out", overwrite: "auto" });
+      };
+      onTilt = (event) => {
+        const bounds = face.getBoundingClientRect();
+        const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+        const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+        gsap.to(face, {
+          rotateY: x * 9,
+          rotateX: -y * 9,
+          transformPerspective: 1100,
+          transformOrigin: "center",
+          duration: 0.45,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      };
+      onTiltLeave = () => {
+        gsap.to(face, {
+          rotateX: 0,
+          rotateY: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          overwrite: "auto",
+        });
+      };
+      root.addEventListener("mousemove", onParallax);
+      face.addEventListener("mousemove", onTilt);
+      face.addEventListener("mouseleave", onTiltLeave);
+    }
 
     return () => {
-      window.removeEventListener("mousemove", onMouseMove);
+      if (onParallax) root.removeEventListener("mousemove", onParallax);
+      if (onTilt) face.removeEventListener("mousemove", onTilt);
+      if (onTiltLeave) face.removeEventListener("mouseleave", onTiltLeave);
+      cancelAnimationFrame(frame);
+      gsap.set(root.querySelectorAll(".hero-anim, .hero-img"), {
+        clearProps: "transform,opacity,visibility",
+      });
       ctx.revert();
     };
   }, []);
@@ -212,84 +250,116 @@ export function Hero() {
     <section
       id="home"
       ref={ref}
-      className="hero-bg relative min-h-screen flex items-center pt-28 pb-16 px-4 sm:px-6 overflow-hidden"
+      className="hero-premium relative min-h-screen overflow-hidden px-4 pb-16 pt-20 sm:px-6 sm:pt-24"
     >
-      <div className="hero-bg-orb absolute inset-0 -z-10 opacity-30 [background:radial-gradient(circle_at_50%_50%,var(--color-primary),transparent_60%)]" />
-      <div className="mx-auto max-w-6xl grid md:grid-cols-2 gap-12 items-center w-full">
+      <div className="hero-bg-orb absolute inset-0 -z-10 opacity-20 [background:radial-gradient(circle_at_70%_40%,var(--color-primary),transparent_48%)]" />
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-8 md:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <span className="hero-anim inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium mb-6">
-            <Sparkles className="size-3 text-primary" /> {t("hero.badge")}
+          <span className="hero-anim mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium">
+            <span aria-hidden="true">👋</span> {t("hero.title.hi")}
           </span>
-          <h1 className="hero-anim text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            {t("hero.title.hi")} <span className="gradient-text">Gourav Takk</span>
+          <h1 className="hero-anim mb-5 text-5xl font-bold tracking-[-0.055em] leading-[0.9] sm:text-6xl lg:text-7xl" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span className="block">Gourav</span>
+            <span className="block text-primary">Takk</span>
           </h1>
-          <p className="hero-anim text-lg sm:text-xl text-muted-foreground mb-3 font-medium">
-            {t("hero.role")}
+          <p className="hero-anim mb-5 min-h-[1.6em] text-lg font-medium sm:text-xl">
+            <Typewriter keys={["typing.1","typing.2","typing.3","typing.4","typing.5"]} className="text-primary" />
           </p>
-          <p className="hero-anim text-base sm:text-lg font-semibold mb-3 min-h-[1.6em]">
-            <Typewriter keys={["typing.1","typing.2","typing.3","typing.4","typing.5"]} className="gradient-text" />
-          </p>
-          <p className="hero-anim text-muted-foreground max-w-xl mb-8">
+          <p className="hero-anim mb-8 max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
             {t("hero.intro")}
           </p>
           <div className="hero-anim flex flex-wrap gap-3">
             <Magnetic>
               <Button asChild size="lg" className="gradient-bg text-primary-foreground border-0 shadow-elegant hover:scale-105 transition-transform">
-                <a href="#contact"><Send className="mr-1" /> {t("hero.hire")}</a>
+                <a href="/Gourav_Takk_Resume.pdf" download><Download className="mr-1" /> Download CV</a>
               </Button>
             </Magnetic>
             <Magnetic>
               <Button asChild size="lg" variant="outline" className="glass">
-                <a href="/Gourav_Takk_Resume.pdf" download><Download className="mr-1" /> {t("hero.resume")}</a>
-              </Button>
-            </Magnetic>
-            <Magnetic>
-              <Button asChild size="lg" variant="ghost">
-                <a href="#contact"><Mail className="mr-1" /> {t("hero.contact")}</a>
+                <a href="#projects">View My Work <ExternalLink className="ml-1" /></a>
               </Button>
             </Magnetic>
           </div>
-          <div className="hero-anim mt-10 flex gap-8 text-sm">
-            <div><CountUp end={10} suffix="+" label={t("hero.stat.projects")} /></div>
-            <div><CountUp end={9} suffix="+" label={t("hero.stat.skills")} /></div>
-            <div><CountUp end={1} suffix="+" label={t("hero.stat.years")} /></div>
+          <div className="hero-anim mt-8 flex gap-3">
+            {[
+              { icon: Github, href: "https://github.com/takkgourav-cmyk", label: "GitHub" },
+              { icon: Linkedin, href: "https://www.linkedin.com/in/gourav-takk-674abb367", label: "LinkedIn" },
+              { icon: Instagram, href: "https://www.instagram.com/", label: "Instagram" },
+              { icon: Mail, href: "mailto:takkgourav@gmail.com", label: "Email" },
+            ].map(({ icon: Icon, href, label }) => (
+              <a key={label} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer" aria-label={label} className="flex size-11 items-center justify-center rounded-full border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary hover:text-primary">
+                <Icon className="size-4" />
+              </a>
+            ))}
           </div>
         </div>
-        <div className="hero-img relative mx-auto">
-          <div ref={faceRef} className="float relative cursor-hover will-change-transform" style={{ transformStyle: "preserve-3d" }} onClick={(e) => {
-            const el = e.currentTarget;
-            gsap.fromTo(el, { rotate: 0 }, { rotate: 360, duration: 1.2, ease: "power2.inOut" });
-          }}>
-            <div className="absolute -inset-6 gradient-bg rounded-full blur-3xl opacity-40" />
-            <div className="relative size-64 sm:size-80 lg:size-96 rounded-full p-1.5 gradient-bg shadow-glow">
+        <div className="hero-img relative mx-auto mt-6 w-full max-w-[270px] sm:mt-8 sm:max-w-[350px] lg:mt-10 lg:max-w-[430px]">
+          <div ref={floatRef} className="relative will-change-transform">
+            <div ref={faceRef} className="profile-tilt relative cursor-hover will-change-transform" style={{ transformStyle: "preserve-3d" }}>
+            <div className="profile-frame relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-card p-2 sm:p-3">
               <Image
                 src={profile}
-                alt="Gourav Takk"
+                alt="Gourav Takk, frontend and React developer"
                 width={768}
-                height={768}
+                height={960}
                 priority
-                className="rounded-full size-full object-cover bg-background"
+                quality={95}
+                sizes="(max-width: 640px) 280px, (max-width: 1024px) 340px, 400px"
+                onLoad={() => ScrollTrigger.refresh()}
+                className="size-full rounded-[1.25rem] object-cover object-top bg-background contrast-[1.04] brightness-[1.03] saturate-[1.02]"
               />
             </div>
-            <div className="absolute -bottom-2 -right-2 glass rounded-2xl px-4 py-2 text-xs font-medium shadow-elegant">
-              <Code2 className="inline size-3 mr-1 text-primary" /> {t("hero.badge.react")}
-            </div>
-            <div className="absolute -top-2 -left-2 glass rounded-2xl px-4 py-2 text-xs font-medium shadow-elegant">
-              <Palette className="inline size-3 mr-1 text-accent" /> {t("hero.badge.ui")}
             </div>
           </div>
         </div>
       </div>
-      <a href="#about" className="absolute bottom-6 left-1/2 -translate-x-1/2 text-muted-foreground animate-bounce" aria-label="Scroll down">
-        <ArrowDown className="size-5" />
-      </a>
+      <div className="hero-anim mx-auto mt-10 grid max-w-7xl grid-cols-2 overflow-hidden rounded-[1.5rem] border border-primary/20 bg-card shadow-elegant md:grid-cols-4">
+        {[
+          { icon: Code2, end: 10, label: "Projects Completed" },
+          { icon: Layout, end: 9, label: "Technologies" },
+          { icon: Award, end: 1, label: "Year of Coding" },
+          { icon: Star, end: 5, label: "Happy Clients" },
+        ].map(({ icon: Icon, end, label }) => (
+          <div key={label} className="border-border p-6 text-center even:border-l md:border-l md:first:border-l-0">
+            <Icon className="mx-auto mb-2 size-6 text-primary" />
+            <CountUp end={end} suffix="+" label={label} />
+          </div>
+        ))}
+      </div>
     </section>
+  );
+}
+
+const tickerItems = [
+  "Available for Freelance Projects",
+  "Frontend Developer",
+  "React Developer",
+  "Open to Work",
+  "Building Modern Websites",
+  "Clean Code",
+];
+
+export function NewsTicker() {
+  const content = tickerItems.map((item) => (
+    <React.Fragment key={item}>
+      <span>{item}</span>
+      <span aria-hidden="true" className="text-primary">•</span>
+    </React.Fragment>
+  ));
+
+  return (
+    <aside className="ticker border-y border-border bg-card py-3" aria-label="Current availability">
+      <div className="ticker-track text-sm font-medium text-muted-foreground">
+        <div className="ticker-group">{content}</div>
+        <div className="ticker-group" aria-hidden="true">{content}</div>
+      </div>
+    </aside>
   );
 }
 
 function SectionTitle({ eyebrow, title, sub }) {
   return (
-    <div className="text-center max-w-2xl mx-auto mb-14 reveal">
+    <div className="text-center max-w-2xl mx-auto mb-8 reveal">
       <span className="text-xs font-semibold tracking-[0.2em] uppercase text-primary">{eyebrow}</span>
       <h2 className="text-3xl sm:text-4xl font-bold mt-2 mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
         {title}
@@ -301,21 +371,27 @@ function SectionTitle({ eyebrow, title, sub }) {
 
 function useReveal() {
   useEffect(() => {
-    const els = gsap.utils.toArray(".reveal");
-    els.forEach((el) => {
-      gsap.from(el, {
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        scrollTrigger: { trigger: el, start: "top 85%" },
+    const ctx = gsap.context(() => {
+      const els = gsap.utils.toArray(".reveal");
+      gsap.set(els, { opacity: 1, visibility: "visible" });
+      els.forEach((el) => {
+        gsap.fromTo(el, { y: 28, opacity: 0 }, {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          ease: "power3.out",
+          clearProps: "transform,opacity,visibility",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        });
       });
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     });
-    return () => ScrollTrigger.getAll().forEach((s) => s.kill());
+    return () => ctx.revert();
   }, []);
 }
 
 export function About() {
+  const ref = useRef(null);
   const { t } = useContent();
   const aboutCards = [
     { icon: GraduationCap, label: t("about.card.education"), value: "BCA - OSSC College" },
@@ -323,12 +399,55 @@ export function About() {
     { icon: Award, label: t("about.card.certified"), value: "WsCube Tech" },
   ];
 
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const root = ref.current;
+    const leftPanel = root.querySelector(".about-left");
+    const rightPanel = root.querySelector(".about-right");
+    const distance = window.innerWidth < 768 ? 70 : 170;
+
+    const ctx = gsap.context(() => {
+      gsap.set([leftPanel, rightPanel], { opacity: 1, visibility: "visible" });
+
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: root,
+          start: "top 95%",
+          end: "bottom 5%",
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      timeline
+        .fromTo(
+          leftPanel,
+          { x: -distance, opacity: 0 },
+          { x: 0, opacity: 1, duration: 1, ease: "power2.out" },
+          0
+        )
+        .fromTo(
+          rightPanel,
+          { x: distance, opacity: 0 },
+          { x: 0, opacity: 1, duration: 1, ease: "power2.out" },
+          0
+        )
+        .to([leftPanel, rightPanel], { opacity: 1, duration: 0.65 })
+        .to(leftPanel, { x: -distance, opacity: 0, duration: 1, ease: "power2.in" })
+        .to(rightPanel, { x: distance, opacity: 0, duration: 1, ease: "power2.in" }, "<");
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, root);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="about" className="py-24 px-4 sm:px-6">
+    <section id="about" ref={ref} className="overflow-hidden px-4 py-10 sm:px-6 sm:py-14">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow={t("about.eyebrow")} title={t("about.title")} />
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="reveal glass rounded-2xl p-6 shadow-elegant md:col-span-2">
+          <div className="about-left glass rounded-2xl p-6 shadow-elegant md:col-span-2">
             <h3 className="font-semibold text-lg mb-3">{t("about.who.title")}</h3>
             <p className="text-muted-foreground leading-relaxed mb-4">
               {t("about.who.body")}
@@ -338,7 +457,7 @@ export function About() {
               {t("about.goal.body")}
             </p>
           </div>
-          <div className="reveal grid gap-4">
+          <div className="about-right grid gap-4">
             {aboutCards.map(({ icon: Icon, label, value }) => (
               <div key={label} className="glass rounded-2xl p-5 shadow-elegant hover:-translate-y-1 transition-transform">
                 <Icon className="size-5 text-primary mb-2" />
@@ -354,55 +473,123 @@ export function About() {
 }
 
 const skills = [
-  { name: "HTML", level: 95 },
-  { name: "CSS", level: 90 },
-  { name: "JavaScript", level: 85 },
-  { name: "React.js", level: 82 },
-  { name: "Next.js", level: 75 },
-  { name: "Tailwind CSS", level: 90 },
-  { name: "Node.js", level: 65 },
-  { name: "Python", level: 60 },
-  { name: "UI/UX Design", level: 78 },
+  { name: "HTML", category: "Structure", level: 95, icon: Code2 },
+  { name: "CSS", category: "Styling", level: 90, icon: Palette },
+  { name: "JavaScript", category: "Language", level: 85, icon: Code2 },
+  { name: "React.js", category: "Frontend", level: 82, icon: Layout },
+  { name: "Next.js", category: "Framework", level: 75, icon: Layout },
+  { name: "Tailwind CSS", category: "Styling", level: 90, icon: Palette },
+  { name: "Node.js", category: "Backend", level: 65, icon: Server },
+  { name: "Python", category: "Language", level: 60, icon: Code2 },
+  { name: "UI/UX Design", category: "Design", level: 78, icon: Palette },
 ];
 
 export function Skills() {
   const ref = useRef(null);
   const { t } = useContent();
-  useEffect(() => {
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const root = ref.current;
     const ctx = gsap.context(() => {
-      gsap.utils.toArray(".bar-fill").forEach((el) => {
-        const target = el.dataset.level || "0";
-        gsap.fromTo(
-          el,
-          { width: "0%" },
-          {
-            width: `${target}%`,
-            duration: 1.4,
-            ease: "power3.out",
-            scrollTrigger: { trigger: el, start: "top 90%" },
-          }
-        );
+      gsap.fromTo(
+        root.querySelectorAll(".skill-card"),
+        {
+          x: (index) => (index % 2 === 0 ? -48 : 48),
+          y: 30,
+          rotateY: (index) => (index % 2 === 0 ? -7 : 7),
+          opacity: 0,
+          scale: 0.96,
+        },
+        {
+          x: 0,
+          y: 0,
+          rotateY: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.08,
+          ease: "back.out(1.2)",
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: root,
+            start: "top 82%",
+            once: true,
+          },
+        }
+      );
+      gsap.utils.toArray(".skill-icon").forEach((icon, index) => {
+        gsap.to(icon, {
+          y: -4,
+          rotate: index % 2 === 0 ? -3 : 3,
+          duration: 1.7 + (index % 3) * 0.2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
       });
-    }, ref);
+      gsap.fromTo(
+        root.querySelectorAll(".skill-meter-fill"),
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 1.1,
+          stagger: 0.06,
+          ease: "power3.out",
+          transformOrigin: "left center",
+          scrollTrigger: {
+            trigger: root,
+            start: "top 78%",
+            once: true,
+          },
+        }
+      );
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, root);
+
     return () => ctx.revert();
   }, []);
+
   return (
-    <section id="skills" className="py-24 px-4 sm:px-6 bg-secondary/40">
-      <div className="mx-auto max-w-6xl" ref={ref}>
-        <SectionTitle eyebrow={t("skills.eyebrow")} title={t("skills.title")} sub={t("skills.sub")} />
-        <div className="grid md:grid-cols-2 gap-x-10 gap-y-6">
-          {skills.map((s) => (
-            <div key={s.name} className="reveal">
-              <div className="flex justify-between mb-2 text-sm font-medium">
-                <span>{s.name}</span>
-                <span className="text-muted-foreground">{s.level}%</span>
+    <section id="skills" ref={ref} className="skills-premium px-4 py-10 sm:px-6 sm:py-14">
+      <header className="relative z-10 mx-auto mb-8 max-w-2xl text-center">
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+          {t("skills.eyebrow")}
+        </span>
+        <h2 className="mt-2 text-3xl font-bold sm:text-4xl">{t("skills.title")}</h2>
+        <p className="mt-3 text-muted-foreground">{t("skills.sub")}</p>
+      </header>
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list" aria-label="Technical skills">
+        {skills.map((skill, index) => {
+          const Icon = skill.icon;
+          return (
+            <div
+              key={skill.name}
+              className="skill-card group relative min-h-56 overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-md"
+              role="listitem"
+            >
+              <div className="skill-card-head flex items-center justify-between">
+                <span className="skill-icon flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <span className="skill-number text-3xl font-bold">{String(index + 1).padStart(2, "0")}</span>
               </div>
-              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div className="bar-fill h-full rounded-full gradient-bg" data-level={s.level} />
+              <div className="mt-6">
+                <p className="skill-category">{skill.category}</p>
+                <h3 className="mt-1 text-xl font-bold">{skill.name}</h3>
+              </div>
+              <div className="skill-card-foot mt-7 flex items-center justify-between text-xs text-muted-foreground">
+                <span>Proficiency</span>
+                <strong className="text-primary">
+                  <CountNumber end={skill.level} suffix="%" />
+                </strong>
+              </div>
+              <div className="skill-meter mt-2 h-1.5 overflow-hidden rounded-full bg-secondary" aria-hidden="true">
+                <div className="skill-meter-fill h-full rounded-full bg-primary" style={{ width: `${skill.level}%` }} />
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -413,79 +600,175 @@ const projects = [
     titleKey: "project.1.title",
     descKey: "project.1.desc",
     tech: ["Next.js", "Tailwind", "GSAP"],
-    gradient: "from-violet-500 to-fuchsia-500",
+    live: "https://gourav-takk-portfolio.vercel.app/",
+    github: "https://github.com/takkgourav-cmyk/portfolio",
   },
   {
     titleKey: "project.2.title",
     descKey: "project.2.desc",
     tech: ["React", "Tailwind", "Vite"],
-    gradient: "from-cyan-500 to-blue-500",
+    github: "https://github.com/takkgourav-cmyk",
   },
   {
     titleKey: "project.3.title",
     descKey: "project.3.desc",
     tech: ["HTML", "CSS", "Bootstrap"],
-    gradient: "from-amber-500 to-rose-500",
+    github: "https://github.com/takkgourav-cmyk/portfolio",
   },
   {
     titleKey: "project.4.title",
     descKey: "project.4.desc",
     tech: ["React", "TypeScript"],
-    gradient: "from-emerald-500 to-teal-500",
+    github: "https://github.com/takkgourav-cmyk",
   },
 ];
 
 export function Projects() {
   const { t } = useContent();
   const ref = useRef(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const root = ref.current;
+    const cleanups = [];
     const ctx = gsap.context(() => {
-      gsap.utils.toArray(".project-card").forEach((card, i) => {
-        gsap.from(card, {
-          y: 80, opacity: 0, duration: 0.9, ease: "power3.out", delay: i * 0.08,
-          scrollTrigger: { trigger: card, start: "top 88%" },
-        });
-        card.addEventListener("mousemove", (e) => {
-          const r = card.getBoundingClientRect();
-          const x = (e.clientX - r.left) / r.width - 0.5;
-          const y = (e.clientY - r.top) / r.height - 0.5;
-          gsap.to(card, { rotateY: x * 10, rotateX: -y * 10, transformPerspective: 800, duration: 0.4, ease: "power2.out" });
-        });
-        card.addEventListener("mouseleave", () => {
-          gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: "power3.out" });
-        });
-        card.addEventListener("click", () => {
-          gsap.fromTo(card, { scale: 1 }, { scale: 0.97, duration: 0.12, yoyo: true, repeat: 1, ease: "power2.inOut" });
+      const cards = gsap.utils.toArray(".project-card");
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: root,
+          start: "top 78%",
+          once: true,
+        },
+      });
+
+      timeline
+        .fromTo(
+          cards,
+          { y: 70, opacity: 0, scale: 0.94, rotateX: 8 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            rotateX: 0,
+            duration: 0.85,
+            ease: "back.out(1.15)",
+            stagger: 0.12,
+            clearProps: "opacity",
+          }
+        )
+        .fromTo(
+          ".project-tech",
+          { y: 14, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.45, ease: "power2.out", stagger: 0.035 },
+          "-=0.35"
+        );
+
+      gsap.to(".project-orb", {
+        x: 18,
+        y: -12,
+        scale: 1.12,
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: 0.2,
+      });
+
+      cards.forEach((card) => {
+        const icon = card.querySelector(".project-preview-icon");
+        const onMove = (event) => {
+          const rect = card.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          gsap.to(card, {
+            rotateY: x * 8,
+            rotateX: -y * 8,
+            y: -8,
+            transformPerspective: 900,
+            transformOrigin: "center",
+            duration: 0.35,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+          if (icon) {
+            gsap.to(icon, {
+              x: x * 16,
+              y: y * 16,
+              rotate: x * 16,
+              scale: 1.08,
+              duration: 0.35,
+              ease: "power2.out",
+              overwrite: "auto",
+            });
+          }
+        };
+        const onLeave = () => {
+          gsap.to(card, {
+            rotateX: 0,
+            rotateY: 0,
+            y: 0,
+            duration: 0.55,
+            ease: "power3.out",
+            overwrite: "auto",
+          });
+          if (icon) {
+            gsap.to(icon, {
+              x: 0,
+              y: 0,
+              rotate: 0,
+              scale: 1,
+              duration: 0.55,
+              ease: "power3.out",
+              overwrite: "auto",
+            });
+          }
+        };
+
+        card.addEventListener("mousemove", onMove);
+        card.addEventListener("mouseleave", onLeave);
+        cleanups.push(() => {
+          card.removeEventListener("mousemove", onMove);
+          card.removeEventListener("mouseleave", onLeave);
         });
       });
-    }, ref);
-    return () => ctx.revert();
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, root);
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+      ctx.revert();
+    };
   }, []);
   return (
-    <section id="projects" className="py-24 px-4 sm:px-6" ref={ref}>
+    <section id="projects" className="px-4 py-10 sm:px-6 sm:py-14" ref={ref}>
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow={t("projects.eyebrow")} title={t("projects.title")} sub={t("projects.sub")} />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className="grid gap-4 sm:grid-cols-2">
           {projects.map((p) => (
             <article key={p.titleKey} className="project-card tilt-card cursor-hover group glass rounded-3xl overflow-hidden shadow-elegant">
-              <div className={`h-48 bg-gradient-to-br ${p.gradient} relative flex items-center justify-center`}>
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,white,transparent_60%)] opacity-20" />
-                <Code2 className="size-16 text-white/80 group-hover:scale-110 transition-transform" />
+              <div className="h-48 bg-secondary border-b border-border relative flex items-center justify-center overflow-hidden">
+                <div className="project-orb absolute -right-10 -top-10 size-36 rounded-full bg-primary/10" />
+                <Code2 className="project-preview-icon size-14 text-primary" />
               </div>
               <div className="p-6">
                 <h3 className="font-bold text-xl mb-2">{t(p.titleKey)}</h3>
                 <p className="text-muted-foreground text-sm mb-4">{t(p.descKey)}</p>
                 <div className="flex flex-wrap gap-2 mb-5">
                   {p.tech.map((t) => (
-                    <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground">{t}</span>
+                    <span key={t} className="project-tech text-xs px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground">{t}</span>
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" className="gradient-bg text-primary-foreground border-0">
-                    <ExternalLink className="mr-1 size-3.5" /> {t("project.live")}
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Github className="mr-1 size-3.5" /> {t("project.github")}
+                  {p.live && (
+                    <Button asChild size="sm" className="gradient-bg text-primary-foreground border-0 shadow-sm transition-transform hover:-translate-y-0.5">
+                      <a href={p.live} target="_blank" rel="noreferrer" aria-label={`${t(p.titleKey)} live demo`}>
+                        <ExternalLink className="mr-1 size-3.5" /> {t("project.live")}
+                      </a>
+                    </Button>
+                  )}
+                  <Button asChild size="sm" variant="outline">
+                    <a href={p.github} target="_blank" rel="noreferrer" aria-label={`${t(p.titleKey)} source code on GitHub`}>
+                      <Github className="mr-1 size-3.5" /> {t("project.github")}
+                    </a>
                   </Button>
                 </div>
               </div>
@@ -506,7 +789,7 @@ const timelineItems = [
 export function Experience() {
   const { t } = useContent();
   return (
-    <section id="experience" className="py-24 px-4 sm:px-6 bg-secondary/40">
+    <section id="experience" className="bg-secondary/40 px-4 py-10 sm:px-6 sm:py-14">
       <div className="mx-auto max-w-4xl">
         <SectionTitle eyebrow={t("exp.eyebrow")} title={t("exp.title")} />
         <div className="relative pl-8 sm:pl-12">
@@ -539,7 +822,7 @@ const serviceItems = [
 export function Services() {
   const { t } = useContent();
   return (
-    <section id="services" className="py-24 px-4 sm:px-6">
+    <section id="services" className="px-4 py-10 sm:px-6 sm:py-14">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow={t("services.eyebrow")} title={t("services.title")} />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -577,7 +860,7 @@ export function Testimonials() {
   }, [paused, total]);
 
   return (
-    <section className="py-24 px-4 sm:px-6 bg-secondary/40">
+    <section className="bg-secondary/40 px-4 py-10 sm:px-6 sm:py-14">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow={t("test.eyebrow")} title={t("test.title")} />
         <div
@@ -672,6 +955,7 @@ export function Contact() {
     if (field === "phone") v = v.replace(/[^\d]/g, "");
     if (field === "name") v = v.replace(/[^A-Za-z\s]/g, "");
     setValues((s) => ({ ...s, [field]: v }));
+    setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
   const [submitting, setSubmitting] = React.useState(false);
@@ -718,10 +1002,10 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="py-24 px-4 sm:px-6">
+    <section id="contact" className="px-4 py-10 sm:px-6 sm:py-14">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow={t("contact.eyebrow")} title={t("contact.title")} sub={t("contact.sub")} />
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid gap-6 md:grid-cols-2">
           <div className="reveal space-y-4">
             {[
               { icon: Mail, label: t("contact.label.email"), value: "takkgourav@gmail.com", href: "mailto:takkgourav@gmail.com" },

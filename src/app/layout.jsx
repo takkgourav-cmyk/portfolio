@@ -14,6 +14,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://gourav-takk-portfolio.vercel.app"),
   title: "Gourav Takk - Web Developer & Frontend Designer Portfolio",
   description:
     "Gourav Takk - Frontend developer & BCA student from Jodhpur, India. Building modern, responsive websites with React, Next.js, Tailwind CSS, and GSAP.",
@@ -31,6 +32,9 @@ export const metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Gourav Takk - Web Developer Portfolio",
     description:
@@ -39,12 +43,21 @@ export const metadata = {
     url: "https://gourav-takk-portfolio.vercel.app/",
     siteName: "Gourav Takk Portfolio",
     locale: "en_US",
+    images: [
+      {
+        url: "/icon.png",
+        width: 512,
+        height: 512,
+        alt: "Gourav Takk developer portfolio",
+      },
+    ],
   },
   twitter: {
     card: "summary",
     title: "Gourav Takk - Web Developer Portfolio",
     description:
       "Frontend developer crafting modern, responsive websites with React, Next.js & Tailwind CSS.",
+    images: ["/icon.png"],
   },
 };
 

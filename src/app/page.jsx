@@ -10,23 +10,21 @@ import {
   Contact,
   Footer,
   RevealMount,
+  NewsTicker,
 } from "@/components/portfolio/sections";
 import { Toaster } from "@/components/ui/sonner";
-import {
-  LoadingScreen,
-  ScrollProgress,
-  BackToTop,
-} from "@/components/portfolio/Effects";
+import { ScrollProgress, BackToTop, SmoothAnchorScroll } from "@/components/portfolio/Effects";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <LoadingScreen />
+    <div className="site-shell min-h-screen bg-background text-foreground">
       <ScrollProgress />
+      <SmoothAnchorScroll />
       <Navbar />
       <RevealMount />
       <main>
         <Hero />
+        <NewsTicker />
         <About />
         <Skills />
         <Projects />
