@@ -1,4 +1,4 @@
-export const SITE_URL = "https://gourav-takk-portfolio.vercel.app";
+export const SITE_URL = "https://portfolio-olive-tau-93.vercel.app";
 export const SITE_NAME = "Gourav Takk Portfolio";
 export const OWNER_NAME = "Gourav Takk";
 export const OWNER_EMAIL = "takkgourav@gmail.com";
