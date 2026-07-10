@@ -1,0 +1,148 @@
+import { Code2, Layout, Palette, Server } from "lucide-react";
+
+export const projects = [
+  {
+    slug: "saas-landing-page",
+    titleKey: "project.1.title",
+    descKey: "project.1.desc",
+    title: "SaaS Landing Page",
+    description: "A high-converting landing page with smooth GSAP animations and a glassmorphic hero.",
+    tech: ["Next.js", "Tailwind", "GSAP"],
+    icon: Code2,
+    live: "/projects/saas-landing-page",
+    github: "https://github.com/takkgourav-cmyk/portfolio",
+    highlights: ["Animated hero section", "Responsive landing layout", "Clean conversion-focused sections"],
+    category: "Marketing Website",
+    timeline: "5 Days",
+    role: "Frontend Developer",
+    overview:
+      "A polished SaaS landing experience built to present a product clearly, guide visitors through the offer, and turn interest into contact clicks.",
+    challenge:
+      "The page needed to look premium without becoming heavy, keep the headline readable on every device, and make the CTA visible without overwhelming the content.",
+    solution:
+      "I used a compact section structure, focused typography, subtle motion, and responsive spacing so the page feels smooth on mobile and sharp on desktop.",
+    metrics: [
+      { label: "Sections", value: "7+" },
+      { label: "Responsive", value: "100%" },
+      { label: "Load focus", value: "Fast" },
+    ],
+    features: [
+      "Hero section with clear CTA",
+      "Feature and benefit blocks",
+      "Smooth scroll-based animation",
+      "Pricing/contact conversion area",
+      "Mobile-first responsive spacing",
+      "Reusable component structure",
+    ],
+    screens: ["Hero", "Features", "Pricing", "Contact"],
+    process: ["Wireframe layout", "Build responsive sections", "Add animation", "Polish spacing"],
+  },
+  {
+    slug: "e-commerce-ui",
+    titleKey: "project.2.title",
+    descKey: "project.2.desc",
+    title: "E-Commerce UI",
+    description: "Responsive product catalogue with cart, filters and clean checkout flow.",
+    tech: ["React", "Tailwind", "Vite"],
+    icon: Layout,
+    live: "/projects/e-commerce-ui",
+    github: "https://github.com/takkgourav-cmyk",
+    highlights: ["Product grid layout", "Cart and checkout UI", "Mobile-first shopping flow"],
+    category: "Shopping Interface",
+    timeline: "7 Days",
+    role: "UI Developer",
+    overview:
+      "A clean e-commerce interface made for browsing products, comparing items, and moving naturally from product discovery to checkout.",
+    challenge:
+      "The layout had to keep product cards readable, filters easy to scan, and checkout actions reachable on smaller screens.",
+    solution:
+      "I built a responsive catalogue structure with clear product hierarchy, compact controls, cart states, and a checkout flow that works across device sizes.",
+    metrics: [
+      { label: "Core screens", value: "5" },
+      { label: "Product flow", value: "Full" },
+      { label: "Mobile UI", value: "Ready" },
+    ],
+    features: [
+      "Product catalogue grid",
+      "Category and price filter UI",
+      "Cart summary section",
+      "Checkout form layout",
+      "Wishlist/product action states",
+      "Responsive product cards",
+    ],
+    screens: ["Home", "Products", "Cart", "Checkout"],
+    process: ["Plan shopping flow", "Create product cards", "Wire cart UI", "Responsive testing"],
+  },
+  {
+    slug: "portfolio-v1",
+    titleKey: "project.3.title",
+    descKey: "project.3.desc",
+    title: "Portfolio v1",
+    description: "A previous personal portfolio built with HTML, CSS, JavaScript and Bootstrap.",
+    tech: ["HTML", "CSS", "Bootstrap"],
+    icon: Palette,
+    live: "/projects/portfolio-v1",
+    github: "https://github.com/takkgourav-cmyk/portfolio",
+    highlights: ["Static portfolio pages", "Bootstrap responsive grid", "Simple personal branding"],
+    category: "Personal Website",
+    timeline: "3 Days",
+    role: "Web Developer",
+    overview:
+      "An earlier personal portfolio focused on introducing skills, education, contact details, and project work with a simple static structure.",
+    challenge:
+      "The goal was to make a lightweight portfolio that could be understood quickly and work well even with a simpler frontend stack.",
+    solution:
+      "I used HTML, CSS, JavaScript, and Bootstrap to create clear sections, responsive columns, and a straightforward contact-first layout.",
+    metrics: [
+      { label: "Pages", value: "3+" },
+      { label: "Stack", value: "Static" },
+      { label: "Setup", value: "Simple" },
+    ],
+    features: [
+      "About and skills sections",
+      "Project showcase area",
+      "Contact details block",
+      "Bootstrap responsive grid",
+      "Simple navigation",
+      "Lightweight static structure",
+    ],
+    screens: ["Intro", "Skills", "Projects", "Contact"],
+    process: ["Create static layout", "Add Bootstrap grid", "Style sections", "Publish portfolio"],
+  },
+  {
+    slug: "task-manager-app",
+    titleKey: "project.4.title",
+    descKey: "project.4.desc",
+    title: "Task Manager App",
+    description: "A productivity app with drag-and-drop boards and persistent local storage.",
+    tech: ["React", "TypeScript"],
+    icon: Server,
+    live: "/projects/task-manager-app",
+    github: "https://github.com/takkgourav-cmyk",
+    highlights: ["Board-based task flow", "Persistent browser storage", "Focused productivity interface"],
+    category: "Productivity Tool",
+    timeline: "6 Days",
+    role: "React Developer",
+    overview:
+      "A task manager concept for organizing work into focused boards, tracking progress, and keeping task state available in the browser.",
+    challenge:
+      "The interface needed to feel useful without becoming crowded, especially when multiple task columns and cards are visible together.",
+    solution:
+      "I designed a board-style flow with clear columns, reusable task cards, local persistence, and compact controls for repeated daily use.",
+    metrics: [
+      { label: "Boards", value: "3" },
+      { label: "Storage", value: "Local" },
+      { label: "Flow", value: "Kanban" },
+    ],
+    features: [
+      "Task board columns",
+      "Add and update task cards",
+      "Drag-and-drop style workflow",
+      "Local storage persistence",
+      "Status-based task grouping",
+      "Clean productivity layout",
+    ],
+    screens: ["Board", "Task cards", "Progress", "Settings"],
+    process: ["Model task states", "Build card UI", "Add persistence", "Polish board layout"],
+  },
+];

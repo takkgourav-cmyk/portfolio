@@ -37,18 +37,18 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out ${
+      className={`fixed top-0 inset-x-0 z-50 transition-[padding] duration-300 ease-out ${
         scrolled ? "py-2" : "py-5"
       }`}
     >
       <nav
-        className={`mx-auto flex items-center justify-between rounded-2xl border transition-all duration-500 ease-out ${
+        className={`mx-auto flex items-center justify-between border transition-[max-width,padding,border-radius,background-color,border-color] duration-300 ease-out ${
           scrolled
-            ? "max-w-5xl glass shadow-elegant border-border px-4 py-2 scale-[0.98]"
-            : "max-w-6xl border-border/70 bg-background/95 px-4 py-3 shadow-sm sm:px-6"
+            ? "max-w-5xl rounded-2xl glass shadow-elegant border-border px-4 py-2"
+            : "max-w-6xl rounded-none border-border/70 bg-background/95 px-4 py-3 shadow-sm sm:px-6 md:rounded-2xl"
         }`}
       >
-        <a href="#home" onClick={(event) => scrollToSection(event, "#home")} className={`flex items-center gap-2 font-bold transition-all duration-500 ${scrolled ? "text-base" : "text-lg"}`}>
+        <a href="#home" onClick={(event) => scrollToSection(event, "#home")} className="flex items-center gap-2 text-lg font-bold transition-colors duration-300">
           <Image
             src="/gourav-logo.png"
             alt="Gourav Takk logo"

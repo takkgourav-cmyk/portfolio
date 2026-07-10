@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useContent } from "./content";
 import { Magnetic } from "./Effects";
+import { projects } from "./projectsData";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -250,7 +251,7 @@ export function Hero() {
     <section
       id="home"
       ref={ref}
-      className="hero-premium relative min-h-screen overflow-hidden px-4 pb-16 pt-20 sm:px-6 sm:pt-24"
+      className="hero-premium relative min-h-screen overflow-hidden px-4 pb-16 pt-28 sm:px-6 sm:pt-24"
     >
       <div className="hero-bg-orb absolute inset-0 -z-10 opacity-20 [background:radial-gradient(circle_at_70%_40%,var(--color-primary),transparent_48%)]" />
       <div className="mx-auto grid w-full max-w-7xl items-center gap-8 md:grid-cols-[0.9fr_1.1fr]">
@@ -595,34 +596,6 @@ export function Skills() {
   );
 }
 
-const projects = [
-  {
-    titleKey: "project.1.title",
-    descKey: "project.1.desc",
-    tech: ["Next.js", "Tailwind", "GSAP"],
-    live: "https://gourav-takk-portfolio.vercel.app/",
-    github: "https://github.com/takkgourav-cmyk/portfolio",
-  },
-  {
-    titleKey: "project.2.title",
-    descKey: "project.2.desc",
-    tech: ["React", "Tailwind", "Vite"],
-    github: "https://github.com/takkgourav-cmyk",
-  },
-  {
-    titleKey: "project.3.title",
-    descKey: "project.3.desc",
-    tech: ["HTML", "CSS", "Bootstrap"],
-    github: "https://github.com/takkgourav-cmyk/portfolio",
-  },
-  {
-    titleKey: "project.4.title",
-    descKey: "project.4.desc",
-    tech: ["React", "TypeScript"],
-    github: "https://github.com/takkgourav-cmyk",
-  },
-];
-
 export function Projects() {
   const { t } = useContent();
   const ref = useRef(null);
@@ -760,7 +733,7 @@ export function Projects() {
                 <div className="flex gap-2">
                   {p.live && (
                     <Button asChild size="sm" className="gradient-bg text-primary-foreground border-0 shadow-sm transition-transform hover:-translate-y-0.5">
-                      <a href={p.live} target="_blank" rel="noreferrer" aria-label={`${t(p.titleKey)} live demo`}>
+                      <a href={p.live} aria-label={`${t(p.titleKey)} live demo`}>
                         <ExternalLink className="mr-1 size-3.5" /> {t("project.live")}
                       </a>
                     </Button>

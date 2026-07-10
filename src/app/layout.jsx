@@ -1,4 +1,5 @@
 import { Inter, Space_Grotesk } from "next/font/google";
+import { absoluteUrl, defaultKeywords, OWNER_EMAIL, OWNER_NAME, OWNER_PHONE, SITE_NAME, SITE_URL } from "@/lib/seo";
 import "../styles.css";
 
 const inter = Inter({
@@ -14,34 +15,45 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://gourav-takk-portfolio.vercel.app"),
-  title: "Gourav Takk - Web Developer & Frontend Designer Portfolio",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Gourav Takk - Frontend Web Developer in Jodhpur",
+    template: `%s | ${OWNER_NAME}`,
+  },
   description:
-    "Gourav Takk - Frontend developer & BCA student from Jodhpur, India. Building modern, responsive websites with React, Next.js, Tailwind CSS, and GSAP.",
-  keywords: [
-    "Gourav Takk",
-    "web developer Jodhpur",
-    "frontend developer India",
-    "React developer",
-    "Next.js developer",
-    "Tailwind CSS",
-    "freelance web developer",
-  ],
-  authors: [{ name: "Gourav Takk" }],
+    "Gourav Takk is a frontend web developer from Jodhpur, India building responsive websites, React apps, Next.js portfolios, landing pages, and clean UI experiences.",
+  keywords: defaultKeywords,
+  authors: [{ name: OWNER_NAME, url: SITE_URL }],
+  creator: OWNER_NAME,
+  publisher: OWNER_NAME,
+  category: "portfolio",
+  applicationName: SITE_NAME,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   alternates: {
-    canonical: "/",
+    canonical: SITE_URL,
   },
   openGraph: {
-    title: "Gourav Takk - Web Developer Portfolio",
+    title: "Gourav Takk - Frontend Web Developer Portfolio",
     description:
-      "Frontend developer crafting modern, responsive websites with React, Next.js, Tailwind CSS & GSAP. Based in Jodhpur, India.",
+      "Frontend developer crafting responsive websites with React, Next.js, Tailwind CSS, and GSAP. Based in Jodhpur, India.",
     type: "website",
-    url: "https://gourav-takk-portfolio.vercel.app/",
-    siteName: "Gourav Takk Portfolio",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     locale: "en_US",
     images: [
       {
@@ -54,9 +66,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Gourav Takk - Web Developer Portfolio",
+    title: "Gourav Takk - Frontend Web Developer Portfolio",
     description:
-      "Frontend developer crafting modern, responsive websites with React, Next.js & Tailwind CSS.",
+      "Frontend developer crafting responsive websites with React, Next.js and Tailwind CSS.",
     images: ["/icon.png"],
   },
 };
@@ -65,14 +77,15 @@ export default function RootLayout({ children }) {
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Gourav Takk",
+    name: OWNER_NAME,
     alternateName: "Gourav",
-    url: "https://gourav-takk-portfolio.vercel.app/",
+    url: SITE_URL,
     jobTitle: "Frontend Web Developer",
     description:
       "Frontend web developer and BCA student from Jodhpur, India specializing in React, Next.js, Tailwind CSS and GSAP.",
-    email: "mailto:takkgourav@gmail.com",
-    telephone: "+91-6377093772",
+    email: `mailto:${OWNER_EMAIL}`,
+    telephone: OWNER_PHONE,
+    image: absoluteUrl("/icon.png"),
     address: {
       "@type": "PostalAddress",
       addressLocality: "Jodhpur",
@@ -91,16 +104,17 @@ export default function RootLayout({ children }) {
     ],
     sameAs: [
       "https://www.linkedin.com/in/gourav-takk-674abb367",
-      "https://github.com/",
+      "https://github.com/takkgourav-cmyk",
     ],
   };
 
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Gourav Takk Portfolio",
-    url: "https://gourav-takk-portfolio.vercel.app/",
-    author: { "@type": "Person", name: "Gourav Takk" },
+    name: SITE_NAME,
+    url: SITE_URL,
+    author: { "@type": "Person", name: OWNER_NAME },
+    inLanguage: "en-US",
   };
 
   return (
