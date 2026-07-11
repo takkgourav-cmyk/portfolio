@@ -33,6 +33,9 @@ export const metadata = {
     address: false,
     telephone: false,
   },
+  verification: {
+    google: "XCqtJFC5Xb5uvBChrgIj6R9QhBx6sJ8EnyXTcvmEd9s",
+  },
   robots: {
     index: true,
     follow: true,
