@@ -5,19 +5,24 @@ import {
   Skills,
   Projects,
   Experience,
+  Education,
   Services,
   Testimonials,
   Contact,
   Footer,
   RevealMount,
   NewsTicker,
+  CustomCursor,
 } from "@/components/portfolio/sections";
 import { Toaster } from "@/components/ui/sonner";
 import { ScrollProgress, BackToTop, SmoothAnchorScroll } from "@/components/portfolio/Effects";
 
 export default function Home() {
   return (
-    <div className="site-shell min-h-screen bg-background text-foreground">
+    <div className="site-shell min-h-screen bg-background text-foreground transition-colors duration-500">
+      {/* Custom dynamic cursor with particles */}
+      <CustomCursor />
+
       <ScrollProgress />
       <SmoothAnchorScroll />
       <Navbar />
@@ -29,6 +34,7 @@ export default function Home() {
         <Skills />
         <Projects />
         <Experience />
+        <Education />
         <Services />
         <Testimonials />
         <Contact />

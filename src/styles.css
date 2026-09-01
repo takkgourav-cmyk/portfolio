@@ -526,3 +526,105 @@ section {
 .tilt-card { transform-style: preserve-3d; will-change: transform; }
 .shadow-glow-hover { transition: box-shadow .35s, transform .35s; }
 .shadow-glow-hover:hover { box-shadow: var(--shadow-glow); }
+
+/* =================== CUSTOM CURSOR =================== */
+.custom-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00ff66;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 99999;
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.8);
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #00ff66;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 99998;
+  opacity: 0.5;
+}
+
+@media (pointer: fine) {
+  body, a, button, [data-cursor-hover] {
+    cursor: none !important;
+  }
+}
+
+/* =================== MINI CAR DRIVE ANIMATION =================== */
+@keyframes drive-car {
+  0%   { transform: translateX(-60px); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 60px)); opacity: 0; }
+}
+
+/* =================== SKILLS MARQUEE =================== */
+@keyframes skills-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* =================== WAVE BOB =================== */
+@keyframes wave-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-14px); }
+}
+
+/* =================== SOCIAL ORBIT ROTATION =================== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes counter-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+/* =================== SKILL FLOWER BURST ANIMATION =================== */
+@keyframes fade-burst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.4) rotate(0deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate(calc(var(--tw-translate-x, 0) * 0.6), calc(var(--tw-translate-y, 0) * 0.6)) scale(1.1) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) scale(0.2) rotate(45deg);
+  }
+}
+
+/* =================== BIG WAVE ANIMATION =================== */
+@keyframes big-wave {
+
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-30px) rotate(6deg);
+  }
+  50% {
+    transform: translateY(-55px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-25px) rotate(-6deg);
+  }
+}
+
+
+

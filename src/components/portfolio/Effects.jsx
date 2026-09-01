@@ -89,8 +89,8 @@ export function ScrollProgress() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (
-    <div className="fixed top-0 left-0 right-0 h-[3px] z-[100] pointer-events-none">
-      <div ref={ref} className="h-full gradient-bg shadow-glow" style={{ width: "0%" }} />
+    <div className="fixed top-0 left-0 right-0 h-[2px] z-[100] pointer-events-none">
+      <div ref={ref} className="h-full scroll-progress-bar" style={{ width: "0%", background: "linear-gradient(90deg, #00ff66, #00ffff)", boxShadow: "0 0 8px rgba(0,255,102,0.6)" }} />
     </div>
   );
 }
@@ -132,7 +132,10 @@ export function BackToTop() {
     <button
       onClick={() => smoothScrollTo(0, 1200)}
       aria-label="Back to top"
-      className="fixed bottom-6 right-6 z-40 size-12 rounded-full gradient-bg text-primary-foreground shadow-glow flex items-center justify-center hover:scale-110 transition-transform animate-fade-in"
+      className="fixed bottom-6 right-6 z-40 size-12 rounded-full flex items-center justify-center hover:scale-110 transition-all animate-fade-in font-bold text-black text-lg"
+      style={{ background: "#00ff66", boxShadow: "0 0 20px rgba(0,255,102,0.5)" }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = "#00cc52"; e.currentTarget.style.boxShadow = "0 0 30px rgba(0,255,102,0.7)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = "#00ff66"; e.currentTarget.style.boxShadow = "0 0 20px rgba(0,255,102,0.5)"; }}
     >
       ↑
     </button>

@@ -1,4 +1,4 @@
-const text = {
+﻿const text = {
   "hero.badge": "Available for freelance",
   "hero.title.hi": "Hi, I'm",
   "hero.role": "Web Developer - Frontend Engineer - UI Enthusiast",
@@ -98,6 +98,10 @@ const text = {
   "contact.success": "Message sent! I'll get back to you soon.",
   "contact.fail": "Could not send message. Please try again later.",
   "footer.rights": "All rights reserved.",
+  "nav.about": "About",
+  "nav.projects": "Projects",
+  "nav.services": "Services",
+  "nav.contact": "Contact",
 };
 
 export function useContent() {
@@ -105,3 +109,4 @@ export function useContent() {
     t: (key) => text[key] ?? key,
   };
 }
+

@@ -15,6 +15,10 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+.next
+
+# Temp scratch files
+temp_*
 
 # Wrangler / Cloudflare
 .wrangler/

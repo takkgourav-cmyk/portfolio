@@ -1,4 +1,4 @@
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Inter, Space_Grotesk, Montserrat } from "next/font/google";
 import { absoluteUrl, defaultKeywords, OWNER_EMAIL, OWNER_NAME, OWNER_PHONE, SITE_NAME, SITE_URL } from "@/lib/seo";
 import "../styles.css";
 
@@ -14,10 +14,17 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Gourav Takk - Frontend Web Developer in Jodhpur",
+    default: "Gourav Takk — Frontend Developer | Jodhpur",
     template: `%s | ${OWNER_NAME}`,
   },
   description:
@@ -28,6 +35,12 @@ export const metadata = {
   publisher: OWNER_NAME,
   category: "portfolio",
   applicationName: SITE_NAME,
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "1024x1024", type: "image/png" },
+    ],
+    apple: "/icon.png",
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -51,9 +64,9 @@ export const metadata = {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: "Gourav Takk - Frontend Web Developer Portfolio",
+    title: "Gourav Takk — Frontend Developer Portfolio",
     description:
-      "Frontend developer crafting responsive websites with React, Next.js, Tailwind CSS, and GSAP. Based in Jodhpur, India.",
+      "Frontend developer crafting premium digital experiences with React, Next.js, and modern web technologies. Based in Jodhpur, India.",
     type: "website",
     url: SITE_URL,
     siteName: SITE_NAME,
@@ -61,17 +74,17 @@ export const metadata = {
     images: [
       {
         url: "/icon.png",
-        width: 512,
-        height: 512,
+        width: 1024,
+        height: 1024,
         alt: "Gourav Takk developer portfolio",
       },
     ],
   },
   twitter: {
-    card: "summary",
-    title: "Gourav Takk - Frontend Web Developer Portfolio",
+    card: "summary_large_image",
+    title: "Gourav Takk — Frontend Developer Portfolio",
     description:
-      "Frontend developer crafting responsive websites with React, Next.js and Tailwind CSS.",
+      "Frontend developer crafting premium digital experiences with React, Next.js, and Tailwind CSS.",
     images: ["/icon.png"],
   },
 };
@@ -121,8 +134,10 @@ export default function RootLayout({ children }) {
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
@@ -132,7 +147,9 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body className={`${inter.variable} ${spaceGrotesk.variable}`}>{children}</body>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${montserrat.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { scrollToHash } from "./Effects";
 
@@ -12,103 +11,128 @@ const links = [
   { href: "#skills", label: "Skills" },
   { href: "#projects", label: "Projects" },
   { href: "#experience", label: "Experience" },
-  { href: "#services", label: "Services" },
+  { href: "#education", label: "Education" },
   { href: "#contact", label: "Contact" },
 ];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const sections = links.map((l) => l.href.replace("#", ""));
+    const observers = sections.map((id) => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
+        { rootMargin: "-30% 0px -60% 0px" }
+      );
+      obs.observe(el);
+      return obs;
+    });
+    return () => observers.forEach((o) => o?.disconnect());
+  }, []);
+
   const scrollToSection = (event, href) => {
     event.preventDefault();
-    const didScroll = scrollToHash(href, { center: true, duration: 1350 });
+    const didScroll = scrollToHash(href, { center: true, duration: 1200 });
     if (!didScroll) return;
     window.history.replaceState(null, "", href);
     setOpen(false);
   };
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-50 transition-[padding] duration-300 ease-out ${
-        scrolled ? "py-2" : "py-5"
-      }`}
+    <nav
+      className={`fixed top-0 left-0 w-full px-6 md:px-12 flex justify-between items-center z-50 transition-all duration-300 ${
+        scrolled
+          ? "py-3 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-b border-black/10 dark:border-white/10 shadow-md"
+          : "py-5 bg-transparent"
+      } text-black dark:text-white`}
     >
-      <nav
-        className={`mx-auto flex items-center justify-between border transition-[max-width,padding,border-radius,background-color,border-color] duration-300 ease-out ${
-          scrolled
-            ? "max-w-5xl rounded-2xl glass shadow-elegant border-border px-4 py-2"
-            : "max-w-6xl rounded-none border-border/70 bg-background/95 px-4 py-3 shadow-sm sm:px-6 md:rounded-2xl"
-        }`}
-      >
-        <a href="#home" onClick={(event) => scrollToSection(event, "#home")} className="flex items-center gap-2 text-lg font-bold transition-colors duration-300">
-          <Image
-            src="/gourav-logo.png"
-            alt="Gourav Takk logo"
-            width={40}
-            height={40}
-            priority
-            className="size-10 rounded-xl object-cover"
-          />
-          <span>Gourav <span className="text-primary">Takk</span></span>
+      {/* Logo: <GOURAV TAKK_/> */}
+      <div className="text-xl md:text-2xl font-bold tracking-wider font-mono">
+        <a
+          href="#home"
+          onClick={(e) => scrollToSection(e, "#home")}
+          className="flex items-center text-black dark:text-white hover:text-[#00ff66] transition-colors"
+        >
+          <span className="text-[#00ff66] mr-1">&lt;</span>
+          <span>GOURAV TAKK</span>
+          <span className="animate-pulse ml-1 font-black text-[#00ff66]">_</span>
+          <span className="text-[#00ff66] ml-1">/&gt;</span>
         </a>
-        <ul className="hidden md:flex items-center gap-7 text-sm font-medium">
-          {links.map((l) => (
+      </div>
+
+      {/* Desktop Links */}
+      <ul className="hidden md:flex items-center gap-8 list-none font-inter">
+        {links.map((l) => {
+          const isActive = activeSection === l.href.replace("#", "");
+          return (
             <li key={l.href}>
               <a
                 href={l.href}
-                onClick={(event) => scrollToSection(event, l.href)}
-                className="text-muted-foreground hover:text-foreground transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
+                onClick={(e) => scrollToSection(e, l.href)}
+                className={`nav-link group relative text-sm font-semibold uppercase tracking-widest transition-colors pb-1 ${
+                  isActive
+                    ? "text-black dark:text-[#00ff66]"
+                    : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-[#00ff66]"
+                }`}
               >
-                {l.label}
+                <span className="relative inline-flex overflow-hidden">
+                  {l.label.split("").map((letter, i) => (
+                    <span key={i} className="inline-block transition-transform duration-200 group-hover:-translate-y-0.5">
+                      {letter}
+                    </span>
+                  ))}
+                </span>
+                <span
+                  className={`absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 transition-all duration-300 ${
+                    isActive
+                      ? "w-full bg-black dark:bg-[#00ff66]"
+                      : "w-0 group-hover:w-full bg-black/60 dark:bg-[#00ff66]"
+                  }`}
+                />
               </a>
             </li>
-          ))}
-        </ul>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <a
-            href="#contact"
-            onClick={(event) => scrollToSection(event, "#contact")}
-            className="hidden items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5 hover:bg-accent-hover sm:flex"
-          >
-            Let&apos;s Talk <ArrowRight className="size-4" />
-          </a>
-          <button
-            className="md:hidden glass rounded-full p-2.5"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-            aria-expanded={open}
-            aria-controls="mobile-navigation"
-          >
-            {open ? <X className="size-4" /> : <Menu className="size-4" />}
-          </button>
-        </div>
-      </nav>
+          );
+        })}
+      </ul>
+
+      {/* Mobile Nav Toggle */}
+      <div className="md:hidden flex items-center gap-3">
+        <button
+          className="p-2 rounded-lg border border-black/10 dark:border-white/20 text-black dark:text-white"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {open ? <X className="size-6" /> : <Menu className="size-6" />}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
       {open && (
-        <div id="mobile-navigation" className="md:hidden mx-4 mt-2 glass rounded-2xl p-3 shadow-elegant animate-fade-in">
-          <ul className="flex flex-col gap-3 text-sm font-medium">
-            {links.map((l) => (
-              <li key={l.href}>
-                <a
-                  href={l.href}
-                  onClick={(event) => scrollToSection(event, l.href)}
-                  className="block rounded-xl px-3 py-2.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
-                >
-                  {l.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+        <div className="md:hidden absolute top-full left-0 w-full bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-black/10 dark:border-white/10 p-6 shadow-2xl flex flex-col gap-4">
+          {links.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={(e) => scrollToSection(e, l.href)}
+              className="text-base font-bold uppercase tracking-wider py-2 text-black/80 dark:text-white/80 hover:text-[#00ff66]"
+            >
+              {l.label}
+            </a>
+          ))}
         </div>
       )}
-    </header>
+    </nav>
   );
 }
