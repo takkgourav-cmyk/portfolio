@@ -5,25 +5,9 @@ import gsap from "gsap";
 
 let scrollFrame = 0;
 
-function easeInOutCubic(progress) {
-  return progress < 0.5
-    ? 4 * progress * progress * progress
-    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-}
-
-export function smoothScrollTo(top, duration = 1250) {
+export function smoothScrollTo(top) {
   cancelAnimationFrame(scrollFrame);
-  const start = window.scrollY;
-  const distance = Math.max(0, top) - start;
-  const startTime = performance.now();
-
-  const tick = (now) => {
-    const progress = Math.min((now - startTime) / duration, 1);
-    window.scrollTo(0, start + distance * easeInOutCubic(progress));
-    if (progress < 1) scrollFrame = requestAnimationFrame(tick);
-  };
-
-  scrollFrame = requestAnimationFrame(tick);
+  window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
 }
 
 export function scrollToHash(hash, { center = false, duration = 1250 } = {}) {
@@ -48,31 +32,6 @@ export function scrollToHash(hash, { center = false, duration = 1250 } = {}) {
 
   smoothScrollTo(top, duration);
   return true;
-}
-
-export function SmoothAnchorScroll() {
-  useEffect(() => {
-    const onClick = (event) => {
-      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      const link = event.target.closest('a[href^="#"]');
-      if (!link) return;
-      const hash = link.getAttribute("href");
-      if (!hash || hash === "#") return;
-
-      const didScroll = scrollToHash(hash, { duration: 1350 });
-      if (!didScroll) return;
-      event.preventDefault();
-      window.history.replaceState(null, "", hash);
-    };
-
-    document.addEventListener("click", onClick);
-    return () => {
-      document.removeEventListener("click", onClick);
-      cancelAnimationFrame(scrollFrame);
-    };
-  }, []);
-
-  return null;
 }
 
 /* =================== Scroll Progress Bar =================== */

@@ -7,7 +7,6 @@ import {
   Experience,
   Education,
   Services,
-  Testimonials,
   Contact,
   Footer,
   RevealMount,
@@ -15,7 +14,7 @@ import {
   CustomCursor,
 } from "@/components/portfolio/sections";
 import { Toaster } from "@/components/ui/sonner";
-import { ScrollProgress, BackToTop, SmoothAnchorScroll } from "@/components/portfolio/Effects";
+import { ScrollProgress, BackToTop } from "@/components/portfolio/Effects";
 
 export default function Home() {
   return (
@@ -24,7 +23,6 @@ export default function Home() {
       <CustomCursor />
 
       <ScrollProgress />
-      <SmoothAnchorScroll />
       <Navbar />
       <RevealMount />
       <main>
@@ -36,7 +34,6 @@ export default function Home() {
         <Experience />
         <Education />
         <Services />
-        <Testimonials />
         <Contact />
       </main>
       <Footer />

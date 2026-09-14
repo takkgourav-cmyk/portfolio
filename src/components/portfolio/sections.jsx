@@ -5,9 +5,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Briefcase, Code2, CodeXml, Download, Github, Instagram, GraduationCap,
-  Layout, Linkedin, Mail, MapPin, Palette, Phone, Server, Star, ExternalLink,
+  Layout, Linkedin, Mail, MapPin, Palette, Phone, Server, ExternalLink,
   Send, Award, Building2, Cpu, ArrowRight, Database, Eye, CornerDownRight, School, Backpack
 } from "lucide-react";
 import profile from "@/assets/profile-developer.webp";
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 import RobotCanvas3D from "./RobotCanvas3D";
 import ThreeContactBackground from "./ThreeContactBackground";
 import { ThemeToggle } from "./ThemeToggle";
+import { projects as portfolioProjects } from "./projectsData";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -721,108 +723,284 @@ export function Skills() {
 /* ================================================================
    PROJECTS — 3D Hover Preview & Archive Rows
    ================================================================ */
-const RESUME_PROJECTS = [
-  {
-    title: "AG PORTFOLIO",
-    desc: "Premium 3D animated agency portfolio built with GSAP, Next.js, and Three.js.",
-    tags: ["Next.js", "React", "GSAP", "Tailwind CSS", "Three.js"],
-    live: "https://github.com/takkgourav-cmyk",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
-    color: "#00ff66",
-  },
-  {
-    title: "Courses Landing Page",
-    desc: "High-converting modern course portal with interactive tabs, testimonials, and glassmorphism.",
-    tags: ["Next.js", "React", "Tailwind CSS", "GSAP", "Framer Motion"],
-    live: "https://github.com/takkgourav-cmyk",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000&auto=format&fit=crop",
-    color: "#14b8a6",
-  },
-  {
-    title: "Secure Auth System",
-    desc: "Enterprise-grade authentication with JWT, OAuth 2.0, bcrypt hashing, and protected routes.",
-    tags: ["Node.js", "Express", "MongoDB", "JWT Auth", "OAuth 2.0"],
-    live: "https://github.com/takkgourav-cmyk",
-    image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=1000&auto=format&fit=crop",
-    color: "#a855f7",
-  },
-  {
-    title: "AI Code Reviewer",
-    desc: "Smart AI developer tool leveraging LLMs for automated code reviews and bug detection.",
-    tags: ["Next.js", "OpenAI API", "React", "Tailwind CSS", "Node.js"],
-    live: "https://github.com/takkgourav-cmyk",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop",
-    color: "#eab308",
-  },
+const PROJECT_IMAGES = [
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1559028012-481c04fa702d?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=1200&auto=format&fit=crop",
 ];
 
+const PROJECT_COLORS = ["#00ff66", "#38bdf8", "#a855f7", "#facc15"];
+
+const PROJECT_SHOWCASE = portfolioProjects.map((project, index) => ({
+  ...project,
+  desc: project.description,
+  tags: project.tech,
+  image: PROJECT_IMAGES[index % PROJECT_IMAGES.length],
+  color: PROJECT_COLORS[index % PROJECT_COLORS.length],
+  number: String(index + 1).padStart(2, "0"),
+}));
+
 export function Projects() {
-  const [activeTab, setActiveTab] = useState(0);
+  const ref = useRef(null);
+  const previewRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeProject = PROJECT_SHOWCASE[activeIndex] ?? PROJECT_SHOWCASE[0];
+  const ActiveIcon = activeProject.icon;
+
+  useLayoutEffect(() => {
+    if (!ref.current) return undefined;
+    const root = ref.current;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        root.querySelectorAll(".projects-kicker, .projects-title, .projects-copy, .projects-action"),
+        { y: 38, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.75,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: { trigger: root, start: "top 72%", once: true },
+        }
+      );
+
+      gsap.fromTo(
+        root.querySelectorAll(".project-switcher-item"),
+        { y: 70, opacity: 0, rotateX: -12 },
+        {
+          y: 0,
+          opacity: 1,
+          rotateX: 0,
+          duration: 0.75,
+          stagger: 0.1,
+          ease: "power3.out",
+          scrollTrigger: { trigger: root.querySelector(".project-scroll-stage"), start: "top 78%", once: true },
+        }
+      );
+
+      gsap.to(root.querySelector(".project-scan-plane"), {
+        yPercent: -18,
+        ease: "none",
+        scrollTrigger: { trigger: root, start: "top bottom", end: "bottom top", scrub: true },
+      });
+
+      root.querySelectorAll(".project-switcher-item").forEach((item, index) => {
+        ScrollTrigger.create({
+          trigger: item,
+          start: "top 55%",
+          end: "bottom 45%",
+          onEnter: () => setActiveIndex(index),
+          onEnterBack: () => setActiveIndex(index),
+        });
+      });
+    }, root);
+
+    return () => ctx.revert();
+  }, []);
+
+  useEffect(() => {
+    if (!previewRef.current) return;
+    gsap.fromTo(
+      previewRef.current.querySelectorAll(".active-project-anim"),
+      { y: 18, opacity: 0, filter: "blur(8px)" },
+      { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.45, stagger: 0.045, ease: "power2.out" }
+    );
+  }, [activeIndex]);
+
+  const handlePreviewMove = (event) => {
+    const panel = previewRef.current;
+    if (!panel) return;
+    const rect = panel.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    gsap.to(panel, {
+      rotateY: x * 8,
+      rotateX: -y * 8,
+      transformPerspective: 1200,
+      duration: 0.35,
+      ease: "power2.out",
+    });
+  };
+
+  const resetPreviewTilt = () => {
+    if (!previewRef.current) return;
+    gsap.to(previewRef.current, { rotateX: 0, rotateY: 0, duration: 0.55, ease: "power3.out" });
+  };
 
   return (
-    <section id="projects" className="min-h-screen w-full bg-white dark:bg-[#050505] overflow-hidden flex flex-col relative transition-colors duration-500 border-t border-black/10 dark:border-white/10 pt-16">
-      {/* Browser Tab Bar */}
-      <div className="w-full h-12 bg-zinc-100 dark:bg-[#1c1c1c] border-y border-black/10 dark:border-black/40 z-[10] flex items-end px-4 gap-1 overflow-x-auto no-scrollbar">
-        {RESUME_PROJECTS.map((p, i) => (
-          <button
-            key={p.title}
-            onClick={() => setActiveTab(i)}
-            className={`relative flex items-center justify-center min-w-[140px] max-w-[220px] flex-1 h-[34px] px-3 text-[11px] font-medium rounded-t-lg transition-colors group ${activeTab === i ? "bg-white dark:bg-[#050505] text-black dark:text-white z-10 shadow-sm" : "bg-zinc-200 dark:bg-[#333333] text-black/60 dark:text-white/60 hover:bg-zinc-300 dark:hover:bg-[#404040]"}`}
-          >
-            <div className="flex items-center gap-2 truncate">
-              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
-              <span className="truncate">{p.title}</span>
-            </div>
-          </button>
-        ))}
-      </div>
+    <section
+      id="projects"
+      ref={ref}
+      className="reference-projects min-h-screen w-full overflow-hidden border-t border-black/10 bg-white py-14 text-black transition-colors duration-500 dark:border-white/10 dark:bg-[#050505] dark:text-white sm:py-20"
+    >
+      <div className="project-scan-plane pointer-events-none absolute inset-x-0 top-0 h-[130%]" />
 
-      {/* Archive Rows with 3D Hover Image Pop Preview */}
-      <div className="w-full px-6 md:px-12 flex flex-col relative z-20 py-8">
-        {RESUME_PROJECTS.map((project) => (
-          <div
-            key={project.title}
-            className="group relative w-full border-b border-black/10 dark:border-white/10 py-12 md:py-16 transition-all duration-500 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] flex flex-col md:flex-row items-center justify-between gap-6"
+      <div className="relative z-10 w-full px-4 sm:px-6 md:px-12">
+        <div className="mb-8 flex flex-col gap-5 lg:mb-14 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="projects-kicker mb-3 text-[11px] font-black uppercase tracking-[0.32em] text-[#00ff66] sm:text-xs">
+              Selected work
+            </p>
+            <h2 className="projects-title text-[clamp(2.85rem,14vw,4.8rem)] font-black uppercase leading-[0.82] tracking-tight text-black dark:text-white sm:text-6xl lg:text-7xl">
+              PROJECTS
+            </h2>
+            <p className="projects-copy mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-base">
+              A layered project wall with live previews, sharp archive cards, and a mobile-first showcase frame.
+            </p>
+          </div>
+          <Link
+            href="/projects/saas-landing-page"
+            className="projects-action inline-flex w-fit items-center gap-2 rounded-full border border-black/15 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-black transition hover:border-[#00ff66] hover:text-[#00ff66] dark:border-white/15 dark:text-white"
           >
-            <div className="w-full md:w-[60%] flex flex-col items-start justify-center z-20 relative">
-              <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase font-montserrat tracking-tighter text-black dark:text-white leading-[0.85] text-left transition-colors group-hover:text-[#00ff66]">
-                {project.title}
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mt-3 leading-relaxed max-w-xl">
-                {project.desc}
-              </p>
-              <div className="mt-6 flex flex-wrap items-center gap-2 sm:gap-3">
-                {project.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="px-3.5 py-1 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/20 text-black dark:text-white rounded-full text-xs font-bold uppercase tracking-wider"
-                  >
-                    {t}
+            View All Projects <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        <div className="project-tab-rail sticky top-[72px] z-30 -mx-4 mb-5 flex h-14 items-end gap-1 overflow-x-auto border-y border-black/10 bg-white/90 px-4 pt-2 backdrop-blur-xl dark:border-white/10 dark:bg-[#050505]/90 sm:mx-0 sm:mb-8 sm:rounded-t-2xl sm:border sm:border-b-0 sm:bg-zinc-100 sm:px-3 dark:sm:bg-[#151515] lg:static lg:z-auto no-scrollbar">
+          {PROJECT_SHOWCASE.map((project, index) => (
+            <button
+              key={project.slug}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              className={`relative flex h-[42px] min-w-[152px] flex-1 items-center justify-center rounded-t-xl px-3 text-[10px] font-black uppercase tracking-[0.12em] transition sm:h-[38px] sm:text-[11px] ${
+                activeIndex === index
+                  ? "bg-black text-white shadow-sm dark:bg-white dark:text-black sm:bg-white sm:text-black dark:sm:bg-[#050505] dark:sm:text-white"
+                  : "bg-zinc-100 text-black/55 hover:bg-zinc-200 dark:bg-white/5 dark:text-white/55 dark:hover:bg-white/10 sm:bg-zinc-200 sm:hover:bg-zinc-300 dark:sm:bg-[#2a2a2a] dark:sm:hover:bg-[#353535]"
+              }`}
+              data-cursor-hover
+            >
+              <span className="mr-2 size-2.5 rounded-full" style={{ backgroundColor: project.color }} />
+              <span className="truncate">{project.title}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="project-scroll-stage grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <div
+            ref={previewRef}
+            onMouseMove={handlePreviewMove}
+            onMouseLeave={resetPreviewTilt}
+            className="project-preview-shell relative overflow-hidden rounded-[1.8rem] border border-black/10 bg-white/90 p-3 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#0a0a0a]/95 sm:p-5 lg:sticky lg:top-24"
+            style={{ boxShadow: `0 26px 80px -42px ${activeProject.color}` }}
+          >
+            <div className="active-project-anim mb-3 flex items-center justify-between gap-3 sm:mb-4 sm:gap-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="grid size-11 place-items-center rounded-2xl border border-black/10 bg-black text-white shadow-lg dark:border-white/10 sm:size-12"
+                  style={{ boxShadow: `0 0 24px ${activeProject.color}50` }}
+                >
+                  <ActiveIcon className="size-5 sm:size-6" style={{ color: activeProject.color }} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] text-zinc-500">Featured</p>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] sm:text-sm" style={{ color: activeProject.color }}>
+                    {activeProject.category}
+                  </p>
+                </div>
+              </div>
+              <span className="font-mono text-2xl font-black text-zinc-200 dark:text-zinc-800 sm:text-3xl">
+                {activeProject.number}
+              </span>
+            </div>
+
+            <div className="active-project-anim project-preview-media relative mb-5 aspect-[4/5] overflow-hidden rounded-[1.45rem] border border-black/10 dark:border-white/10 sm:aspect-video sm:rounded-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={activeProject.image} alt={activeProject.title} className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center gap-2">
+                {activeProject.tags.slice(0, 4).map((tag) => (
+                  <span key={tag} className="rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-black">
+                    {tag}
                   </span>
                 ))}
-                <a
-                  href={project.live}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="relative ml-2 px-6 py-2 bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-150 active:translate-y-[4px] hover:-translate-y-[2px] flex items-center gap-2 shadow-[0_4px_0_rgba(0,0,0,1)] dark:shadow-[0_4px_0_rgba(255,255,255,1)] cursor-pointer"
-                >
-                  <span>View Live</span>
-                  <ExternalLink className="size-3.5" />
-                </a>
               </div>
             </div>
 
-            {/* Hover Floating 3D Image Preview */}
-            <div className="w-full md:w-[40%] flex justify-center md:justify-end items-center z-10 relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-[280px] md:w-[420px] lg:w-[88%] h-auto aspect-video object-cover rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] opacity-40 md:opacity-0 scale-95 md:scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] origin-center md:origin-right border border-black/10 dark:border-white/10"
-              />
+            <h3 className="active-project-anim text-[clamp(1.8rem,9vw,3rem)] font-black uppercase leading-[0.92] tracking-tight sm:text-4xl">
+              {activeProject.title}
+            </h3>
+            <p className="active-project-anim mt-4 text-sm font-medium leading-relaxed text-zinc-600 dark:text-zinc-400">
+              {activeProject.overview || activeProject.desc}
+            </p>
+
+            <div className="active-project-anim mt-6 grid grid-cols-3 gap-1.5 sm:gap-2">
+              {(activeProject.metrics || []).slice(0, 3).map((metric) => (
+                <div key={metric.label} className="rounded-2xl border border-black/10 bg-zinc-50 p-2.5 dark:border-white/10 dark:bg-white/5 sm:p-3">
+                  <p className="text-base font-black sm:text-lg" style={{ color: activeProject.color }}>{metric.value}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-zinc-500 sm:text-[10px] sm:tracking-[0.12em]">{metric.label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="active-project-anim mt-6 flex flex-col gap-2.5 sm:flex-row sm:gap-3">
+              <a
+                href={activeProject.live}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#00ff66] px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-black transition hover:bg-[#00cc52]"
+              >
+                <Eye className="size-4" /> View Live
+              </a>
+              <Link
+                href={`/projects/${activeProject.slug}`}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-black/15 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition hover:border-[#00ff66] hover:text-[#00ff66] dark:border-white/15"
+              >
+                Details <ExternalLink className="size-4" />
+              </Link>
             </div>
           </div>
-        ))}
+
+          <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-3 lg:mx-0 lg:block lg:space-y-4 lg:overflow-visible lg:px-0 lg:pb-0 no-scrollbar">
+            {PROJECT_SHOWCASE.map((project, index) => (
+              <button
+                key={project.slug}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                className={`project-switcher-item group relative min-w-[82vw] snap-center overflow-hidden rounded-[1.35rem] border p-4 text-left transition duration-500 sm:min-w-[58vw] sm:p-7 lg:w-full lg:min-w-0 ${
+                  activeIndex === index
+                    ? "border-[#00ff66]/70 bg-[#00ff66]/5 shadow-[0_20px_65px_-45px_rgba(0,255,102,0.95)]"
+                    : "border-black/10 bg-zinc-50 hover:border-black/25 hover:bg-white dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25"
+                }`}
+                data-cursor-hover
+              >
+                <div className="mb-4 aspect-[16/10] overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 lg:hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={project.image} alt={project.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                </div>
+                <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <div className="mb-4 flex items-center gap-3">
+                      <span className="font-mono text-xs font-black text-zinc-500">{project.number}</span>
+                      <span className="h-px w-10 bg-zinc-300 dark:bg-zinc-700" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: project.color }}>
+                        {project.category}
+                      </span>
+                    </div>
+                    <h3 className="text-2xl font-black uppercase leading-[0.9] tracking-tight text-black transition group-hover:text-[#00ff66] dark:text-white sm:text-4xl lg:text-5xl">
+                      {project.title}
+                    </h3>
+                    <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-600 dark:text-zinc-400">
+                      {project.desc}
+                    </p>
+                  </div>
+                  <div
+                    className="grid size-12 shrink-0 place-items-center rounded-full border border-black/10 bg-white transition group-hover:rotate-[-10deg] group-hover:scale-110 dark:border-white/10 dark:bg-black"
+                    style={{ color: project.color }}
+                  >
+                    <ArrowRight className="size-5" />
+                  </div>
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="rounded-full border border-black/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-zinc-600 dark:border-white/10 dark:text-zinc-300">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -833,72 +1011,195 @@ export function Projects() {
    ================================================================ */
 const EXPERIENCES = [
   {
-    period: "2024 — Present",
+    period: "2024 - Present",
     role: "Freelance Frontend Web Developer",
-    company: "Freelance Projects",
+    company: "Client & Practice Projects",
     bullets: [
       "Built multiple responsive websites and developed practical Git/GitHub workflow experience.",
       "Delivered pixel-perfect React & Next.js user interfaces with smooth GSAP animations and Tailwind styling.",
       "Ensured mobile responsiveness, fast performance, clean modular code, and cross-browser support.",
     ],
     tags: ["React.js", "Next.js", "Tailwind CSS", "Git/GitHub", "JavaScript"],
+    color: "#00ff66",
+    icon: Briefcase,
+  },
+  {
+    period: "2024",
+    role: "Web Development Trainee",
+    company: "WsCube Tech",
+    bullets: [
+      "Completed hands-on web development training across HTML, CSS, JavaScript, and React fundamentals.",
+      "Practiced responsive layouts, reusable UI patterns, and clean frontend implementation.",
+      "Built a strong foundation for modern React and Next.js project workflows.",
+    ],
+    tags: ["HTML5", "CSS3", "JavaScript", "React", "Responsive UI"],
+    color: "#38bdf8",
+    icon: Award,
+  },
+  {
+    period: "2024 - Present",
+    role: "React & Next.js Project Builder",
+    company: "Personal Product Lab",
+    bullets: [
+      "Created portfolio, landing page, e-commerce, and productivity UI projects to sharpen production-ready frontend skills.",
+      "Used animation, component-driven design, SEO basics, and accessible responsive patterns across projects.",
+      "Focused on performance, visual polish, and converting static ideas into interactive browser experiences.",
+    ],
+    tags: ["Next.js", "GSAP", "UI/UX", "SEO", "Performance"],
+    color: "#a855f7",
+    icon: Code2,
   },
 ];
 
 export function Experience() {
+  const ref = useRef(null);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return undefined;
+    const root = ref.current;
+    const mm = gsap.matchMedia();
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        root.querySelectorAll(".experience-title-part"),
+        { y: 36, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: { trigger: root, start: "top 72%", once: true },
+        }
+      );
+
+      gsap.fromTo(
+        root.querySelectorAll(".experience-panel"),
+        { y: 60, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.75,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: { trigger: root.querySelector(".experience-track"), start: "top 82%", once: true },
+        }
+      );
+    }, root);
+
+    mm.add("(min-width: 1024px)", () => {
+      const viewport = root.querySelector(".experience-viewport");
+      const track = root.querySelector(".experience-track");
+      if (!viewport || !track) return undefined;
+
+      const tween = gsap.to(track, {
+        x: () => -Math.max(0, track.scrollWidth - viewport.clientWidth),
+        ease: "none",
+        scrollTrigger: {
+          trigger: root.querySelector(".experience-pin"),
+          start: "top top",
+          end: () => `+=${Math.max(900, track.scrollWidth - viewport.clientWidth + window.innerHeight * 0.55)}`,
+          scrub: 0.8,
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      return () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
+    });
+
+    return () => {
+      mm.revert();
+      ctx.revert();
+    };
+  }, []);
+
   return (
-    <section id="experience" className="w-full relative bg-zinc-50 dark:bg-[#020202] py-16 sm:py-20 px-6 md:px-12 transition-colors duration-500 border-t border-black/10 dark:border-white/10">
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-10 sm:mb-12">
-          <h2 className="text-3xl md:text-5xl font-black font-montserrat uppercase tracking-tight text-black dark:text-white">
-            EXPERIENCE
-          </h2>
-          <p className="text-zinc-500 text-sm md:text-base font-medium mt-1">
-            Practical development &amp; client workflows
-          </p>
-          <div className="h-[2px] w-20 mt-4 bg-zinc-900 dark:bg-[#00ff66]" />
+    <section
+      id="experience"
+      ref={ref}
+      className="reference-experience relative w-full overflow-hidden border-t border-black/10 bg-zinc-50 text-black transition-colors duration-500 dark:border-white/10 dark:bg-[#020202] dark:text-white"
+    >
+      <div className="experience-pin px-6 py-16 sm:py-20 md:px-12">
+        <div className="mb-10 flex flex-col gap-4 lg:mb-14 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="experience-title-part mb-3 text-xs font-black uppercase tracking-[0.32em] text-[#00ff66]">
+              Scroll to view
+            </p>
+            <h2 className="experience-title-part text-4xl font-black uppercase leading-none tracking-tight text-black dark:text-white sm:text-6xl lg:text-7xl">
+              EXPERIENCE
+            </h2>
+            <p className="experience-title-part mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-base">
+              A timeline-style track for practical development, training, and project-building work.
+            </p>
+          </div>
+          <div className="experience-title-part inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-zinc-700 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+            <span className="size-2 rounded-full bg-[#00ff66]" />
+            Scroll / drag
+          </div>
         </div>
 
-        {EXPERIENCES.map((exp, idx) => (
-          <div
-            key={idx}
-            className="exp-card relative w-full rounded-[2rem] p-6 sm:p-10 md:p-12 shadow-2xl bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10"
-          >
-            <div className="pointer-events-none absolute inset-0 rounded-[2rem] border border-[#00ff66]/30 shadow-[0_0_30px_rgba(0,255,102,0.1)]" />
-
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-6 pb-6 border-b border-black/10 dark:border-white/10">
-              <div>
-                <span className="text-xs font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-[#00ff66]/10 text-[#00ff66]">
-                  {exp.period}
-                </span>
-                <h3 className="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white tracking-tight mt-3">
-                  {exp.role}
-                </h3>
-                <p className="text-xl font-bold text-green-600 dark:text-[#00ff66] mt-1">{exp.company}</p>
-              </div>
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              {exp.bullets.map((b, bIdx) => (
-                <li key={bIdx} className="flex items-start gap-3">
-                  <CornerDownRight className="size-5 text-[#00ff66] shrink-0 mt-0.5" />
-                  <span className="text-zinc-700 dark:text-zinc-300 text-sm md:text-base leading-relaxed">{b}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="pt-6 border-t border-black/10 dark:border-white/10 flex flex-wrap gap-2">
-              {exp.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 text-xs font-bold tracking-wide rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-[#00ff66] border border-emerald-500/30"
+        <div className="experience-viewport overflow-hidden">
+          <div className="experience-track flex flex-col gap-5 lg:w-max lg:flex-row lg:gap-6">
+            {EXPERIENCES.map((exp, idx) => {
+              const Icon = exp.icon;
+              return (
+                <article
+                  key={exp.role}
+                  className="experience-panel relative min-h-[470px] w-full overflow-hidden rounded-[1.6rem] border border-black/10 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#0a0a0a] sm:p-8 lg:w-[min(76vw,760px)]"
+                  style={{ boxShadow: `0 24px 80px -52px ${exp.color}` }}
                 >
-                  {tag}
-                </span>
-              ))}
-            </div>
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1" style={{ backgroundColor: exp.color }} />
+                  <div className="mb-8 flex items-start justify-between gap-6 border-b border-black/10 pb-6 dark:border-white/10">
+                    <div>
+                      <span className="rounded-full bg-black px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-white dark:bg-white dark:text-black">
+                        {exp.period}
+                      </span>
+                      <h3 className="mt-5 text-3xl font-black uppercase leading-none tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
+                        {exp.role}
+                      </h3>
+                      <p className="mt-2 text-lg font-black uppercase tracking-[0.12em]" style={{ color: exp.color }}>
+                        {exp.company}
+                      </p>
+                    </div>
+                    <div
+                      className="grid size-14 shrink-0 place-items-center rounded-2xl border border-black/10 bg-zinc-50 dark:border-white/10 dark:bg-white/5"
+                      style={{ color: exp.color, boxShadow: `0 0 24px ${exp.color}35` }}
+                    >
+                      <Icon className="size-7" />
+                    </div>
+                  </div>
+
+                  <ul className="mb-8 space-y-4">
+                    {exp.bullets.map((bullet) => (
+                      <li key={bullet} className="flex items-start gap-3">
+                        <CornerDownRight className="mt-0.5 size-5 shrink-0" style={{ color: exp.color }} />
+                        <span className="text-sm font-medium leading-relaxed text-zinc-700 dark:text-zinc-300 sm:text-base">
+                          {bullet}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-auto flex flex-wrap gap-2 border-t border-black/10 pt-6 dark:border-white/10">
+                    {exp.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]"
+                        style={{ borderColor: `${exp.color}55`, color: exp.color, backgroundColor: `${exp.color}10` }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
           </div>
-        ))}
+        </div>
       </div>
     </section>
   );
@@ -911,7 +1212,7 @@ const EDUCATIONS = [
   {
     institution: "OSSC College",
     degree: "Bachelor of Computer Applications (BCA)",
-    meta: "2024 — Present • 2nd Semester",
+    meta: "2024 - Present - 2nd Semester",
     desc: "Core focus on Computer Applications, Web Programming, Data Structures, and Software Development. Location: Jodhpur, Rajasthan.",
     color: "#00ff66",
     icon: GraduationCap,
@@ -920,16 +1221,63 @@ const EDUCATIONS = [
   {
     institution: "WsCube Tech",
     degree: "Web Development Certification",
-    meta: "2024 • Certified",
+    meta: "2024 - Certified",
     desc: "Completed full web development course covering HTML, CSS, JavaScript, React, and modern UI engineering standards.",
     color: "#38bdf8",
     icon: Award,
     cordHeight: 150,
   },
+  {
+    institution: "Self Learning Lab",
+    degree: "React & Next.js Practice",
+    meta: "2024 - Present",
+    desc: "Continuous project-based learning across responsive UI, animation, deployment, SEO, and frontend performance.",
+    color: "#facc15",
+    icon: School,
+    cordHeight: 132,
+  },
 ];
 
 export function Education() {
-  const [sway, setSway] = useState([0, 0]);
+  const ref = useRef(null);
+  const dragStartRef = useRef(null);
+  const [sway, setSway] = useState(() => EDUCATIONS.map(() => 0));
+  const [drag, setDrag] = useState({ index: null, x: 0, y: 0 });
+
+  useLayoutEffect(() => {
+    if (!ref.current) return undefined;
+    const root = ref.current;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        root.querySelectorAll(".education-title-part"),
+        { y: 36, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: { trigger: root, start: "top 72%", once: true },
+        }
+      );
+
+      gsap.fromTo(
+        root.querySelectorAll(".education-card"),
+        { y: 72, opacity: 0, rotate: -4 },
+        {
+          y: 0,
+          opacity: 1,
+          rotate: 0,
+          duration: 0.85,
+          stagger: 0.12,
+          ease: "elastic.out(1, 0.72)",
+          scrollTrigger: { trigger: root.querySelector(".education-card-grid"), start: "top 78%", once: true },
+        }
+      );
+    }, root);
+
+    return () => ctx.revert();
+  }, []);
 
   const handleCardHover = (index) => {
     setSway((prev) => {
@@ -946,81 +1294,140 @@ export function Education() {
     }, 1200);
   };
 
+  const startDrag = (event, index) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    dragStartRef.current = {
+      index,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+    };
+    setDrag({ index, x: 0, y: 0 });
+  };
+
+  const moveDrag = (event, index) => {
+    const start = dragStartRef.current;
+    if (!start || start.index !== index) return;
+    const x = Math.max(-46, Math.min(46, event.clientX - start.startX));
+    const y = Math.max(-18, Math.min(28, event.clientY - start.startY));
+    if (Math.abs(x) + Math.abs(y) > 4) start.moved = true;
+    setDrag({ index, x, y });
+  };
+
+  const endDrag = (event, index) => {
+    const start = dragStartRef.current;
+    if (!start || start.index !== index) return;
+    event.currentTarget.releasePointerCapture?.(start.pointerId);
+    dragStartRef.current = null;
+    setDrag({ index: null, x: 0, y: 0 });
+    handleCardHover(index);
+  };
+
   return (
-    <section id="education" className="min-h-screen w-full flex flex-col pt-16 sm:pt-20 pb-20 border-t border-black/10 dark:border-white/5 relative bg-white dark:bg-[#020202] transition-colors duration-500">
-      <div className="w-full px-6 md:px-12 z-10 relative">
-        <div className="mb-10 sm:mb-14">
-          <h2 className="text-3xl md:text-5xl font-bold font-montserrat mt-2 tracking-tight text-black dark:text-white">
+    <section
+      id="education"
+      ref={ref}
+      className="reference-education relative flex min-h-screen w-full flex-col overflow-hidden border-t border-black/10 bg-white pt-16 text-black transition-colors duration-500 dark:border-white/5 dark:bg-[#020202] dark:text-white sm:pt-20"
+    >
+      <div className="relative z-10 w-full px-6 md:px-12">
+        <div className="mb-10 flex flex-col gap-4 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="education-title-part mb-3 text-xs font-black uppercase tracking-[0.32em] text-[#00ff66]">
+              Drag or click card
+            </p>
+            <h2 className="education-title-part text-4xl font-black uppercase leading-none tracking-tight text-black dark:text-white sm:text-6xl lg:text-7xl">
             EDUCATION &amp; CERTIFICATION
-          </h2>
-          <div className="h-[2px] w-20 mt-4 bg-zinc-900 dark:bg-[#00ff66]" />
+            </h2>
+            <p className="education-title-part mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-base">
+              Hanging lanyard cards with drag/click swing interactions, adapted for mobile and desktop.
+            </p>
+          </div>
+          <div className="education-title-part inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-zinc-50 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-zinc-700 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+            <Backpack className="size-4 text-[#00ff66]" />
+            Learning Track
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 w-full max-w-5xl mx-auto px-6 md:px-12 pt-0 pb-12 flex flex-col sm:flex-row justify-center items-center gap-12 lg:gap-16 relative z-10">
-        {EDUCATIONS.map((item, idx) => (
-          <div
-            key={item.degree}
-            className="education-card flex flex-col items-center select-none cursor-grab active:cursor-grabbing w-full sm:w-auto"
-            onMouseEnter={() => handleCardHover(idx)}
-            onClick={() => handleCardHover(idx)}
-          >
-            <div className="w-3 h-3 rounded-full shadow-md z-10 relative" style={{ background: item.color }} />
+      <div className="education-card-grid relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center gap-10 px-6 pb-16 md:px-12 lg:flex-row lg:items-start lg:gap-8 xl:gap-12">
+        {EDUCATIONS.map((item, idx) => {
+          const isDragging = drag.index === idx;
+          const cardTransform = isDragging
+            ? `translate3d(${drag.x}px, ${drag.y}px, 0) rotate(${drag.x / 13}deg)`
+            : `rotate(${sway[idx]}deg)`;
 
+          return (
             <div
-              className="flex flex-col items-center transition-transform duration-700 ease-out w-full sm:w-auto"
-              style={{
-                transform: `rotate(${sway[idx]}deg)`,
-                transformOrigin: "top center",
-                marginTop: "-6px",
-              }}
+              key={item.degree}
+              className="education-card flex w-full max-w-[360px] touch-none select-none flex-col items-center lg:w-[32%]"
+              onPointerDown={(event) => startDrag(event, idx)}
+              onPointerMove={(event) => moveDrag(event, idx)}
+              onPointerUp={(event) => endDrag(event, idx)}
+              onPointerCancel={(event) => endDrag(event, idx)}
+              onMouseEnter={() => handleCardHover(idx)}
+              data-cursor-hover
             >
-              <svg width="30" height={item.cordHeight} viewBox={`0 0 30 ${item.cordHeight}`} style={{ display: "block", margin: "0 auto", overflow: "visible" }}>
-                <circle cx="15" cy="0" r="5" fill="#27272a" />
-                <path d={`M 13 0 L 10 ${item.cordHeight}`} stroke="#27272a" strokeWidth="5" opacity="0.9" />
-                <path d={`M 17 0 L 20 ${item.cordHeight}`} stroke="#27272a" strokeWidth="5" opacity="0.9" />
-                <rect x="10" y={item.cordHeight - 6} width="10" height="8" rx="2" fill="#94a3b8" />
-                <circle cx="15" cy={item.cordHeight + 2} r="3" fill="#e2e8f0" />
-              </svg>
+              <div className="relative z-10 size-3 rounded-full shadow-md" style={{ background: item.color, boxShadow: `0 0 18px ${item.color}` }} />
 
               <div
-                className="relative w-full max-w-[320px] sm:w-80 lg:w-[360px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl mt-[-2px] transition-all hover:scale-105"
-                style={{ boxShadow: `0 20px 40px -10px ${item.color}40` }}
+                className="flex w-full flex-col items-center transition-transform duration-700 ease-out"
+                style={{
+                  transform: cardTransform,
+                  transformOrigin: "top center",
+                  marginTop: "-6px",
+                  cursor: isDragging ? "grabbing" : "grab",
+                }}
               >
-                <div className="px-4 sm:px-6 py-6 sm:py-8 flex flex-col items-center gap-2 relative z-10">
-                  <div
-                    className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-md shadow-xl border border-black/5 dark:border-white/10 mb-2"
-                    style={{ boxShadow: `0 0 20px ${item.color}40` }}
-                  >
-                    <item.icon className="size-8 sm:size-10" style={{ color: item.color }} />
+                <svg width="34" height={item.cordHeight} viewBox={`0 0 34 ${item.cordHeight}`} style={{ display: "block", margin: "0 auto", overflow: "visible" }}>
+                  <circle cx="17" cy="0" r="5" fill="#27272a" />
+                  <path d={`M 15 0 L 10 ${item.cordHeight}`} stroke="#27272a" strokeWidth="5" opacity="0.9" />
+                  <path d={`M 19 0 L 24 ${item.cordHeight}`} stroke="#27272a" strokeWidth="5" opacity="0.9" />
+                  <rect x="11" y={item.cordHeight - 7} width="12" height="9" rx="2" fill="#94a3b8" />
+                  <circle cx="17" cy={item.cordHeight + 2} r="3" fill="#e2e8f0" />
+                </svg>
+
+                <div
+                  className="relative mt-[-2px] w-full overflow-hidden rounded-[1.6rem] border border-black/10 bg-white/95 shadow-2xl backdrop-blur-xl transition hover:scale-[1.025] dark:border-white/10 dark:bg-[#0a0a0a]/95"
+                  style={{ boxShadow: `0 24px 62px -28px ${item.color}80` }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-1" style={{ background: item.color }} />
+                  <div className="relative z-10 flex flex-col items-center gap-3 px-5 py-7 sm:px-6 sm:py-8">
+                    <div
+                      className="grid size-20 place-items-center rounded-2xl border border-black/10 bg-zinc-50 shadow-xl dark:border-white/10 dark:bg-black/20"
+                      style={{ boxShadow: `0 0 24px ${item.color}40` }}
+                    >
+                      <item.icon className="size-10" style={{ color: item.color }} />
+                    </div>
+                    <p className="text-center text-xs font-black uppercase tracking-[0.18em] text-zinc-900 dark:text-white sm:text-sm">
+                      {item.institution}
+                    </p>
                   </div>
-                  <p className="text-xs sm:text-base font-black tracking-[0.15em] text-center text-zinc-900 dark:text-white uppercase">
-                    {item.institution}
-                  </p>
-                </div>
 
-                <div className="px-5 sm:px-8 pb-6 flex flex-col items-center gap-2 flex-1 relative z-10">
-                  <p className="text-base sm:text-xl font-black text-center leading-tight uppercase font-montserrat" style={{ color: item.color }}>
-                    {item.degree}
-                  </p>
-                  <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-bold text-center">
-                    {item.meta}
-                  </p>
-                  <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-medium text-center mt-2 px-2 leading-relaxed opacity-80 border-t border-zinc-200 dark:border-zinc-800 pt-3">
-                    {item.desc}
-                  </p>
+                  <div className="relative z-10 flex flex-1 flex-col items-center gap-2 px-5 pb-6 sm:px-7">
+                    <p className="text-center text-lg font-black uppercase leading-tight sm:text-xl" style={{ color: item.color }}>
+                      {item.degree}
+                    </p>
+                    <p className="text-center text-xs font-black uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+                      {item.meta}
+                    </p>
+                    <p className="mt-3 border-t border-zinc-200 px-2 pt-4 text-center text-xs font-medium leading-relaxed text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+                      {item.desc}
+                    </p>
 
-                  <div className="my-3 w-full border-t border-dashed border-zinc-300 dark:border-zinc-800" />
-                  <div className="flex gap-[3px] items-end h-6 opacity-30">
-                    {[50, 80, 65, 30, 90, 45, 75, 60, 20, 85, 40, 70, 95, 35, 55, 78, 62].map((h, i) => (
-                      <div key={i} className="bg-black dark:bg-white rounded-[1px]" style={{ width: "3px", height: `${h}%` }} />
-                    ))}
+                    <div className="my-3 w-full border-t border-dashed border-zinc-300 dark:border-zinc-800" />
+                    <div className="flex h-6 items-end gap-[3px] opacity-30">
+                      {[50, 80, 65, 30, 90, 45, 75, 60, 20, 85, 40, 70, 95, 35, 55, 78, 62].map((height, i) => (
+                        <div key={i} className="rounded-[1px] bg-black dark:bg-white" style={{ width: "3px", height: `${height}%` }} />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -1188,51 +1595,6 @@ export function Services() {
               <p className="text-sm text-zinc-600 dark:text-zinc-400">{s.desc}</p>
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ================================================================
-   TESTIMONIALS
-   ================================================================ */
-export function Testimonials() {
-  const testimonialItems = [
-    { name: "Aarav Sharma", role: "Tech Lead", text: "Gourav delivers outstanding UI animations and top-tier code reliability. Working with him was a game changer!" },
-    { name: "Priya Mehta", role: "Product Manager", text: "The attention to detail and visual polish on our web platforms blew everyone away." },
-    { name: "Rohit Verma", role: "Founder", text: "Exceptional mastery in modern JavaScript, Next.js, and clean responsive UI design. Highly recommended!" },
-  ];
-  const [index, setIndex] = useState(0);
-
-  return (
-    <section className="pt-8 pb-20 md:pt-12 md:pb-28 px-6 md:px-12 border-t border-black/10 dark:border-white/10 bg-white dark:bg-[#050505] text-black dark:text-white transition-colors duration-500">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl md:text-5xl font-bold font-montserrat tracking-tight text-black dark:text-white mb-4">
-          KIND WORDS
-        </h2>
-        <div className="h-[2px] w-20 mx-auto mb-10 sm:mb-12 bg-zinc-900 dark:bg-[#00ff66]" />
-
-        <div className="max-w-3xl mx-auto bg-zinc-50 dark:bg-zinc-900/60 rounded-3xl p-6 sm:p-10 md:p-12 border border-black/10 dark:border-white/10 shadow-xl">
-          <div className="flex justify-center gap-1 mb-4 text-[#00ff66]">
-            {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="size-5 fill-current" />)}
-          </div>
-          <blockquote className="text-base sm:text-xl leading-relaxed mb-6 italic text-zinc-800 dark:text-zinc-200">
-            &ldquo;{testimonialItems[index].text}&rdquo;
-          </blockquote>
-          <div className="font-bold text-lg text-black dark:text-white">{testimonialItems[index].name}</div>
-          <div className="text-xs font-mono text-zinc-500 mt-1">{testimonialItems[index].role}</div>
-
-          <div className="flex justify-center gap-2 mt-8">
-            {testimonialItems.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setIndex(i)}
-                aria-label={`Testimonial ${i + 1}`}
-                className={`h-2 rounded-full transition-all ${i === index ? "w-8 bg-[#00ff66]" : "w-2 bg-zinc-400 dark:bg-zinc-700"}`}
-              />
-            ))}
-          </div>
         </div>
       </div>
     </section>
