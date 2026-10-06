@@ -1,5 +1,6 @@
 import { Inter, Space_Grotesk, Montserrat } from "next/font/google";
 import { absoluteUrl, defaultKeywords, OWNER_EMAIL, OWNER_NAME, OWNER_PHONE, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { HelloIntro } from "@/components/portfolio/HelloIntro";
 import "../styles.css";
 
 const inter = Inter({
@@ -148,6 +149,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${montserrat.variable}`}>
+        <HelloIntro />
         {children}
       </body>
     </html>
