@@ -3,13 +3,15 @@ import Link from "next/link";
 import { ArrowLeft, ExternalLink, Home } from "lucide-react";
 
 export const metadata = {
-  title: "Page Not Found | Gourav Takk",
+  title: "Page Not Found",
   description: "The requested page could not be found.",
+  alternates: { canonical: null },
+  robots: { index: false, follow: true, googleBot: { index: false, follow: true } },
 };
 
 export default function NotFound() {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#070b0f] px-4 py-16 text-[#f8fafc] sm:px-6">
+    <main id="main-content" tabIndex={-1} className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#070b0f] px-4 py-16 text-[#f8fafc] sm:px-6">
       <span className="absolute left-[8%] top-[12%] size-48 rounded-full bg-orange-500/10 blur-3xl" />
       <span className="absolute bottom-[8%] right-[6%] size-64 rounded-full bg-orange-600/10 blur-3xl" />
 

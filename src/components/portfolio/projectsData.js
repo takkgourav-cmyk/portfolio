@@ -6,8 +6,8 @@ export const projects = [
     titleKey: "project.1.title",
     descKey: "project.1.desc",
     title: "SaaS Landing Page",
-    description: "A high-converting landing page with smooth GSAP animations and a glassmorphic hero.",
-    tech: ["Next.js", "Tailwind", "GSAP"],
+    description: "A Next.js and Tailwind CSS landing page with a glassmorphic hero and GSAP motion, designed to explain a SaaS product and guide visitors to a clear call to action.",
+    tech: ["Next.js", "Tailwind CSS", "GSAP"],
     icon: Code2,
     live: "/projects/saas-landing-page",
     github: "https://github.com/takkgourav-cmyk/portfolio",
@@ -16,7 +16,8 @@ export const projects = [
     timeline: "5 Days",
     role: "Frontend Developer",
     overview:
-      "A polished SaaS landing experience built to present a product clearly, guide visitors through the offer, and turn interest into contact clicks.",
+      "This SaaS landing page uses Next.js, Tailwind CSS, and GSAP to introduce a product through a hero, feature blocks, pricing, and contact sections. The goal is to help visitors understand the offer and find the next step, while keeping the layout readable on small screens.",
+    seoDescription: "Explore Gourav Takk's SaaS landing page project: Next.js, Tailwind CSS and GSAP, with responsive product sections and clear calls to action.",
     challenge:
       "The page needed to look premium without becoming heavy, keep the headline readable on every device, and make the CTA visible without overwhelming the content.",
     solution:
@@ -42,8 +43,8 @@ export const projects = [
     titleKey: "project.2.title",
     descKey: "project.2.desc",
     title: "E-Commerce UI",
-    description: "Responsive product catalogue with cart, filters and clean checkout flow.",
-    tech: ["React", "Tailwind", "Vite"],
+    description: "A React shopping interface built with Tailwind CSS and Vite, exploring product browsing, filter controls, cart summaries, and a responsive checkout layout.",
+    tech: ["React", "Tailwind CSS", "Vite"],
     icon: Layout,
     live: "/projects/e-commerce-ui",
     github: "https://github.com/takkgourav-cmyk",
@@ -52,7 +53,8 @@ export const projects = [
     timeline: "7 Days",
     role: "UI Developer",
     overview:
-      "A clean e-commerce interface made for browsing products, comparing items, and moving naturally from product discovery to checkout.",
+      "This frontend project explores a shopping journey from a product catalogue to cart and checkout screens. React components, Tailwind CSS layouts, and Vite support an interface focused on product hierarchy, discoverable filters, and actions that remain usable on phones. The focus is the shopping UI.",
+    seoDescription: "Explore Gourav Takk's E-Commerce UI: a React, Tailwind CSS and Vite frontend project covering product browsing, filter controls, cart and checkout layouts.",
     challenge:
       "The layout had to keep product cards readable, filters easy to scan, and checkout actions reachable on smaller screens.",
     solution:
@@ -78,8 +80,8 @@ export const projects = [
     titleKey: "project.3.title",
     descKey: "project.3.desc",
     title: "Portfolio v1",
-    description: "A previous personal portfolio built with HTML, CSS, JavaScript and Bootstrap.",
-    tech: ["HTML", "CSS", "Bootstrap"],
+    description: "An earlier personal portfolio using HTML, CSS, JavaScript, and Bootstrap to bring skills, education, project work, and contact details into a straightforward responsive layout.",
+    tech: ["HTML", "CSS", "JavaScript", "Bootstrap"],
     icon: Palette,
     live: "/projects/portfolio-v1",
     github: "https://github.com/takkgourav-cmyk/portfolio",
@@ -88,7 +90,8 @@ export const projects = [
     timeline: "3 Days",
     role: "Web Developer",
     overview:
-      "An earlier personal portfolio focused on introducing skills, education, contact details, and project work with a simple static structure.",
+      "Portfolio v1 is my earlier personal website, built with HTML, CSS, JavaScript, and Bootstrap. Its goal was to introduce my skills and education, make project work easy to scan, and keep contact information within reach. A static structure and responsive grid kept the site simple to navigate and maintain.",
+    seoDescription: "View Gourav Takk's earlier personal portfolio, built with HTML, CSS, JavaScript and Bootstrap to present skills, projects, education and contact details.",
     challenge:
       "The goal was to make a lightweight portfolio that could be understood quickly and work well even with a simpler frontend stack.",
     solution:
@@ -114,7 +117,7 @@ export const projects = [
     titleKey: "project.4.title",
     descKey: "project.4.desc",
     title: "Task Manager App",
-    description: "A productivity app with drag-and-drop boards and persistent local storage.",
+    description: "A React and TypeScript task manager concept using board-based task groups and browser storage, focused on keeping everyday work organized in a compact interface.",
     tech: ["React", "TypeScript"],
     icon: Server,
     live: "/projects/task-manager-app",
@@ -124,7 +127,8 @@ export const projects = [
     timeline: "6 Days",
     role: "React Developer",
     overview:
-      "A task manager concept for organizing work into focused boards, tracking progress, and keeping task state available in the browser.",
+      "This React and TypeScript task manager concept explores organizing work into status-based boards, updating task cards, and retaining task state in local browser storage. The goal is a focused daily workflow with clear progress and compact controls, including when several task columns are visible together.",
+    seoDescription: "Explore Gourav Takk's React and TypeScript task manager concept: status-based boards, reusable task cards and local browser storage for organizing work.",
     challenge:
       "The interface needed to feel useful without becoming crowded, especially when multiple task columns and cards are visible together.",
     solution:

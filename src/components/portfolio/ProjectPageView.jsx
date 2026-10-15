@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ExternalLink, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { projectJsonLd } from "@/lib/seo";
+import { projectJsonLd, serializeJsonLd } from "@/lib/seo";
 
 export function ProjectPageView({ project }) {
   const Icon = project.icon;
 
   return (
-    <main className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 sm:py-10">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 sm:py-10">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectJsonLd(project)) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(projectJsonLd(project)) }}
       />
       <div className="mx-auto max-w-6xl">
         <Link
@@ -39,7 +39,7 @@ export function ProjectPageView({ project }) {
               <Button asChild className="gradient-bg text-primary-foreground">
                 <a href={project.github} target="_blank" rel="noreferrer">
                   <Github className="mr-1 size-4" />
-                  View Code
+                  {new URL(project.github).pathname.split("/").filter(Boolean).length > 1 ? "Portfolio Repository" : "GitHub Profile"}
                 </a>
               </Button>
               <Button asChild variant="outline" className="glass">
@@ -64,7 +64,7 @@ export function ProjectPageView({ project }) {
                 <Icon className="size-8" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Preview</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Project outline</p>
                 <h2 className="mt-2 text-2xl font-bold">{project.screens[0]} experience</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{project.description}</p>
               </div>
@@ -104,7 +104,7 @@ export function ProjectPageView({ project }) {
         <section className="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="glass rounded-2xl p-6 shadow-elegant">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Features</p>
-            <h2 className="mt-2 text-2xl font-bold">Demo includes</h2>
+            <h2 className="mt-2 text-2xl font-bold">Project features</h2>
             <div className="mt-5 grid gap-3">
               {project.features.map((feature) => (
                 <div key={feature} className="flex items-start gap-3 rounded-xl bg-secondary/50 p-3">
@@ -127,7 +127,7 @@ export function ProjectPageView({ project }) {
                   <div className="rounded-xl border border-border bg-background p-3">
                     <p className="font-semibold">{step}</p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Step {index + 1} keeps the demo practical, responsive, and easy to extend.
+                      Step {index + 1} of the project workflow.
                     </p>
                   </div>
                 </div>
@@ -142,7 +142,8 @@ export function ProjectPageView({ project }) {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Next step</p>
               <h2 className="mt-2 text-2xl font-bold">Want a similar project?</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                I can create this kind of responsive website or app UI with your content, brand, and real requirements.
+                Need a website developer in Jodhpur? Share your content, brand, and requirements,
+                or <Link href="/#services" className="text-primary underline underline-offset-4">explore my website development services</Link>.
               </p>
             </div>
             <Button asChild className="gradient-bg text-primary-foreground">

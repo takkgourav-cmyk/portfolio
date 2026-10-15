@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Briefcase, Code2, CodeXml, Download, Github, Instagram, GraduationCap,
   Layout, Linkedin, Mail, MapPin, Palette, Phone, Server, ExternalLink,
@@ -13,10 +14,11 @@ import {
 } from "lucide-react";
 import profile from "@/assets/profile-developer.webp";
 import { toast } from "sonner";
-import RobotCanvas3D from "./RobotCanvas3D";
-import ThreeContactBackground from "./ThreeContactBackground";
 import { ThemeToggle } from "./ThemeToggle";
 import { projects as portfolioProjects } from "./projectsData";
+
+const RobotCanvas3D = dynamic(() => import("./RobotCanvas3D"), { ssr: false });
+const ThreeContactBackground = dynamic(() => import("./ThreeContactBackground"), { ssr: false });
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,6 +34,7 @@ export function CustomCursor() {
   const trail = useRef([]);
 
   useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const dot = dotRef.current;
     const ringEl = ringRef.current;
     const canvas = canvasRef.current;
@@ -130,6 +133,7 @@ export function CustomCursor() {
 function ParticleCanvas() {
   const canvasRef = useRef(null);
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -175,7 +179,7 @@ export function Hero() {
   const ref = useRef(null);
 
   useLayoutEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const root = ref.current;
     const ctx = gsap.context(() => {
       const heroLines = root.querySelectorAll(".hero-text-line");
@@ -192,8 +196,10 @@ export function Hero() {
     <section
       id="home"
       ref={ref}
-      className="relative min-h-screen w-full overflow-hidden flex items-start justify-center pt-20 md:pt-24 bg-white dark:bg-[#020202] transition-colors duration-500"
+      aria-labelledby="home-heading"
+      className="relative w-full overflow-hidden bg-white dark:bg-[#020202] transition-colors duration-500"
     >
+      <div className="relative h-[65svh] min-h-[420px] w-full overflow-hidden md:h-[75svh]">
       {/* Background Particles */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-[1] overflow-hidden">
         <ParticleCanvas />
@@ -201,10 +207,11 @@ export function Hero() {
 
       {/* Giant outlined background text */}
       <div
+        aria-hidden="true"
         className="hero-wrapper opacity-0 absolute inset-0 z-0 flex flex-col items-center justify-center text-center pointer-events-none overflow-hidden"
         style={{ opacity: 1 }}
       >
-        <h1
+        <div
           className="text-[3.5rem] sm:text-[6rem] md:text-[9rem] lg:text-[13rem] leading-[0.78] tracking-tighter flex flex-col items-center opacity-60 dark:opacity-20 select-none"
           style={{ fontFamily: "var(--font-montserrat), sans-serif", fontWeight: 900 }}
         >
@@ -229,11 +236,11 @@ export function Hero() {
               PORTFOLIO
             </span>
           </span>
-        </h1>
+        </div>
       </div>
 
       {/* 3D Spline Interactive Robot Character */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
+      <div aria-hidden="true" className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
         <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
           <RobotCanvas3D />
         </div>
@@ -246,6 +253,29 @@ export function Hero() {
           Frontend Web Developer • Jodhpur, Rajasthan
         </div>
         <div className="w-[1px] h-6 bg-gradient-to-b from-[#00ff66] to-transparent animate-pulse" />
+      </div>
+      </div>
+
+      <div className="relative z-20 grid gap-6 border-t border-black/10 px-6 py-10 dark:border-white/10 md:px-12 lg:grid-cols-2 lg:items-center">
+        <div>
+          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-emerald-700 dark:text-[#00ff66]">Gourav Takk · Available for freelance</p>
+          <h1 id="home-heading" className="text-3xl font-black font-montserrat leading-tight tracking-tight text-black dark:text-white sm:text-4xl xl:text-5xl">
+            Web Developer in Jodhpur, Rajasthan
+          </h1>
+        </div>
+        <div>
+          <p className="max-w-2xl text-base leading-relaxed text-zinc-700 dark:text-zinc-300">
+            I&apos;m Gourav Takk, a Jodhpur web developer building responsive business websites,
+            landing pages, and frontend interfaces with React, Next.js, and Tailwind CSS.
+            I help turn your ideas and content into a website that explains what you offer,
+            works on phones, and makes it easy for customers to contact you.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a href="#contact" className="rounded-full bg-[#00ff66] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#00cc52]">Hire Me</a>
+            <a href="#projects" className="rounded-full border border-black/20 px-6 py-3 text-sm font-bold text-black dark:border-white/20 dark:text-white">View Projects</a>
+            <a href="#services" className="px-3 py-3 text-sm font-bold text-emerald-700 dark:text-[#00ff66]">Explore Services <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -284,7 +314,7 @@ export function About() {
   const cardRef = useRef(null);
 
   useLayoutEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const root = ref.current;
     const card = cardRef.current;
     const ctx = gsap.context(() => {
@@ -357,7 +387,7 @@ export function About() {
               className="about-image-card relative w-full max-w-[320px] sm:max-w-[340px] aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900 cursor-pointer select-none shadow-2xl"
               style={{ transformStyle: "preserve-3d" }}
             >
-              <Image src={profile} alt="Gourav Takk" fill className="object-cover pointer-events-none" sizes="(max-width: 768px) 100vw, 340px" priority />
+              <Image src={profile} alt="Gourav Takk, frontend web developer based in Jodhpur, Rajasthan" fill className="object-cover pointer-events-none" sizes="(max-width: 380px) calc(100vw - 48px), 340px" />
               <div className="absolute bottom-0 left-0 right-0 z-10 p-4 bg-white/70 dark:bg-black/70 backdrop-blur-md border-t border-black/10 dark:border-white/10 flex items-center justify-center pointer-events-none">
                 <span className="text-lg md:text-xl font-black text-transparent font-montserrat tracking-widest uppercase text-center [-webkit-text-stroke:1px_black] dark:[-webkit-text-stroke:1px_white]">
                   GOURAV TAKK
@@ -370,14 +400,7 @@ export function About() {
             <div className="flex gap-3 w-full max-w-[340px] justify-center mt-2">
               <a
                 href="mailto:takkgourav@gmail.com?subject=Hello%20Gourav&body=Hello%20Gourav,"
-                onClick={(e) => {
-                  window.open(
-                    "https://mail.google.com/mail/?view=cm&fs=1&to=takkgourav@gmail.com&su=Hello%20Gourav&body=Hello%20Gourav,",
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-                }}
-                className="flex items-center justify-center flex-1 gap-1.5 px-3 py-2.5 rounded-full bg-transparent hover:bg-white/10 text-xs md:text-sm font-semibold transition-transform active:scale-95 border border-white/30 whitespace-nowrap cursor-pointer text-white"
+                className="flex items-center justify-center flex-1 gap-1.5 px-3 py-2.5 rounded-full bg-transparent hover:bg-black/5 dark:hover:bg-white/10 text-xs md:text-sm font-semibold transition-transform active:scale-95 border border-black/30 dark:border-white/30 whitespace-nowrap cursor-pointer text-black dark:text-white"
               >
                 <Mail className="size-4 text-[#00ff66]" />Email Me
               </a>
@@ -574,7 +597,7 @@ export function Skills() {
       <div className="w-full px-6 md:px-12 relative z-[1]">
         <div className="mb-12 md:mb-16">
           <h2 className="text-3xl md:text-5xl font-bold font-montserrat mt-2 tracking-tight text-black dark:text-white">
-            MY TECH STACK
+            WEB DEVELOPMENT SKILLS
           </h2>
           <div className="h-[2px] w-20 mt-4 bg-zinc-900 dark:bg-[#00ff66]" />
         </div>
@@ -632,6 +655,8 @@ export function Skills() {
                   return (
                     <button
                       key={tab.id}
+                      type="button"
+                      aria-pressed={active}
                       onClick={() => setActiveTab(tab.id)}
                       className={`flex items-center gap-3 px-4 py-3 md:py-2 text-sm font-mono whitespace-nowrap transition-colors outline-none cursor-pointer ${active ? "bg-white dark:bg-black text-black dark:text-white md:border-l-2 md:border-[#00ff66] border-b-2 md:border-b-0 border-[#00ff66]" : "text-zinc-500 hover:text-black dark:hover:text-white"}`}
                     >
@@ -704,7 +729,11 @@ export function Skills() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={skill.icon}
-                  alt={skill.name}
+                  alt={i < ALL_SKILLS.length ? `${skill.name} logo` : ""}
+                  width={144}
+                  height={144}
+                  loading="lazy"
+                  decoding="async"
                   className="w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain drop-shadow-2xl transition-all duration-300 group-hover:scale-125"
                   style={{ filter: skill.invert ? "invert(1)" : undefined }}
                 />
@@ -749,7 +778,7 @@ export function Projects() {
   const ActiveIcon = activeProject.icon;
 
   useLayoutEffect(() => {
-    if (!ref.current) return undefined;
+    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
     const root = ref.current;
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -800,7 +829,7 @@ export function Projects() {
   }, []);
 
   useEffect(() => {
-    if (!previewRef.current) return;
+    if (!previewRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.fromTo(
       previewRef.current.querySelectorAll(".active-project-anim"),
       { y: 18, opacity: 0, filter: "blur(8px)" },
@@ -843,17 +872,18 @@ export function Projects() {
               Selected work
             </p>
             <h2 className="projects-title text-[clamp(2.85rem,14vw,4.8rem)] font-black uppercase leading-[0.82] tracking-tight text-black dark:text-white sm:text-6xl lg:text-7xl">
-              PROJECTS
+              WEBSITE &amp; FRONTEND PROJECTS
             </h2>
             <p className="projects-copy mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-base">
-              A layered project wall with live previews, sharp archive cards, and a mobile-first showcase frame.
+              Explore my landing page, shopping interface, personal portfolio, and task manager projects.
+              Each overview explains the goal, technologies, and approach to the interface.
             </p>
           </div>
           <Link
-            href="/projects/saas-landing-page"
+            href="#project-list"
             className="projects-action inline-flex w-fit items-center gap-2 rounded-full border border-black/15 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-black transition hover:border-[#00ff66] hover:text-[#00ff66] dark:border-white/15 dark:text-white"
           >
-            View All Projects <ArrowRight className="size-4" />
+            Browse Projects <ArrowRight className="size-4" />
           </Link>
         </div>
 
@@ -862,6 +892,7 @@ export function Projects() {
             <button
               key={project.slug}
               type="button"
+              aria-pressed={activeIndex === index}
               onClick={() => setActiveIndex(index)}
               className={`relative flex h-[42px] min-w-[152px] flex-1 items-center justify-center rounded-t-xl px-3 text-[10px] font-black uppercase tracking-[0.12em] transition sm:h-[38px] sm:text-[11px] ${
                 activeIndex === index
@@ -905,8 +936,7 @@ export function Projects() {
             </div>
 
             <div className="active-project-anim project-preview-media relative mb-5 aspect-[4/5] overflow-hidden rounded-[1.45rem] border border-black/10 dark:border-white/10 sm:aspect-video sm:rounded-2xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={activeProject.image} alt={activeProject.title} className="h-full w-full object-cover" />
+              <Image src={activeProject.image} alt="" fill sizes="(max-width: 640px) calc(100vw - 56px), (max-width: 1023px) 90vw, 44vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center gap-2">
                 {activeProject.tags.slice(0, 4).map((tag) => (
@@ -938,23 +968,21 @@ export function Projects() {
                 href={activeProject.live}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#00ff66] px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-black transition hover:bg-[#00cc52]"
               >
-                <Eye className="size-4" /> View Live
+                <Eye className="size-4" /> View Project
               </a>
               <Link
-                href={`/projects/${activeProject.slug}`}
+                href="/#contact"
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-black/15 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition hover:border-[#00ff66] hover:text-[#00ff66] dark:border-white/15"
               >
-                Details <ExternalLink className="size-4" />
+                Discuss Project <ExternalLink className="size-4" />
               </Link>
             </div>
           </div>
 
-          <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-3 lg:mx-0 lg:block lg:space-y-4 lg:overflow-visible lg:px-0 lg:pb-0 no-scrollbar">
+          <div id="project-list" className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-3 lg:mx-0 lg:block lg:space-y-4 lg:overflow-visible lg:px-0 lg:pb-0 no-scrollbar">
             {PROJECT_SHOWCASE.map((project, index) => (
-              <button
+              <article
                 key={project.slug}
-                type="button"
-                onClick={() => setActiveIndex(index)}
                 className={`project-switcher-item group relative min-w-[82vw] snap-center overflow-hidden rounded-[1.35rem] border p-4 text-left transition duration-500 sm:min-w-[58vw] sm:p-7 lg:w-full lg:min-w-0 ${
                   activeIndex === index
                     ? "border-[#00ff66]/70 bg-[#00ff66]/5 shadow-[0_20px_65px_-45px_rgba(0,255,102,0.95)]"
@@ -962,9 +990,15 @@ export function Projects() {
                 }`}
                 data-cursor-hover
               >
-                <div className="mb-4 aspect-[16/10] overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 lg:hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={project.image} alt={project.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                <button
+                  type="button"
+                  aria-label={`Preview ${project.title}`}
+                  aria-pressed={activeIndex === index}
+                  onClick={() => setActiveIndex(index)}
+                  className="absolute inset-0 z-10 rounded-[inherit]"
+                />
+                <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 lg:hidden">
+                  <Image src={project.image} alt="" fill sizes="(max-width: 639px) 82vw, (max-width: 1023px) 58vw, 1px" className="object-cover transition duration-700 group-hover:scale-105" />
                 </div>
                 <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
@@ -997,10 +1031,17 @@ export function Projects() {
                     </span>
                   ))}
                 </div>
-              </button>
+              </article>
             ))}
           </div>
         </div>
+        <nav aria-label="Project details" className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold">
+          {portfolioProjects.map((project) => (
+            <Link key={project.slug} href={`/projects/${project.slug}`} className="text-emerald-700 underline underline-offset-4 dark:text-[#00ff66]">
+              {project.title} details
+            </Link>
+          ))}
+        </nav>
       </div>
     </section>
   );
@@ -1055,7 +1096,7 @@ export function Experience() {
   const ref = useRef(null);
 
   useLayoutEffect(() => {
-    if (!ref.current) return undefined;
+    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
     const root = ref.current;
     const mm = gsap.matchMedia();
     const ctx = gsap.context(() => {
@@ -1245,7 +1286,7 @@ export function Education() {
   const [drag, setDrag] = useState({ index: null, x: 0, y: 0 });
 
   useLayoutEffect(() => {
-    if (!ref.current) return undefined;
+    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
     const root = ref.current;
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -1448,14 +1489,14 @@ export function Contact() {
   return (
     <section id="contact" className="min-h-screen w-full flex flex-col pt-16 sm:pt-20 pb-20 border-t border-black/10 dark:border-white/5 relative overflow-hidden bg-white dark:bg-[#020202] transition-colors duration-500">
       {/* 3D Three.js Background Canvas */}
-      <div className="absolute inset-0 z-0 hidden md:block pointer-events-none opacity-60 dark:opacity-80">
+      <div aria-hidden="true" className="absolute inset-0 z-0 hidden md:block pointer-events-none opacity-60 dark:opacity-80">
         <ThreeContactBackground />
       </div>
 
       <div className="w-full px-6 md:px-12 z-10 relative">
         <div className="mb-10 sm:mb-14">
           <h2 className="text-3xl md:text-5xl font-bold font-montserrat mt-2 tracking-tight text-black dark:text-white">
-            CONTACT
+            CONTACT GOURAV TAKK
           </h2>
           <div className="h-[2px] w-20 mt-4 bg-zinc-900 dark:bg-[#00ff66]" />
         </div>
@@ -1468,23 +1509,23 @@ export function Contact() {
             Let&apos;s Connect
           </h3>
           <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-10 leading-relaxed font-medium">
-            I am always open to discussing new tech, web development opportunities, or collaborative projects. Feel free to send me a message directly or connect through my <span className="text-[#00ff66] font-bold">Social Orbit!</span>
+            Looking for a freelance web developer in Jodhpur? Tell me about your business,
+            the pages you need, and what you want your website to do. We can discuss a new
+            website, a responsive redesign, or frontend development for your existing project.
           </p>
+
+          <address className="mb-8 space-y-3 not-italic text-base text-zinc-700 dark:text-zinc-300">
+            <p className="flex flex-wrap items-center justify-center gap-2 lg:justify-start"><Mail aria-hidden="true" className="size-5 shrink-0" /><a href="mailto:takkgourav@gmail.com" className="break-all underline underline-offset-4">takkgourav@gmail.com</a></p>
+            <p className="flex items-center justify-center gap-2 lg:justify-start"><Phone aria-hidden="true" className="size-5" /><a href="tel:+916377093772" className="underline underline-offset-4">+91 63770 93772</a></p>
+            <p className="flex items-center justify-center gap-2 lg:justify-start"><MapPin aria-hidden="true" className="size-5" />Jodhpur, Rajasthan, India</p>
+          </address>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
             <a
               href="mailto:takkgourav@gmail.com?subject=Message%20from%20Portfolio&body=Hello%20Gourav,"
-              onClick={(e) => {
-                // Open Gmail Web Compose directly in a new tab
-                window.open(
-                  "https://mail.google.com/mail/?view=cm&fs=1&to=takkgourav@gmail.com&su=Message%20from%20Portfolio&body=Hello%20Gourav,",
-                  "_blank",
-                  "noopener,noreferrer"
-                );
-              }}
               className="flex items-center justify-center gap-3 px-8 py-4 bg-black dark:bg-[#00ff66] text-white dark:text-black font-black uppercase tracking-widest rounded-xl hover:scale-105 shadow-xl transition-all cursor-pointer select-none"
             >
-              <Send className="size-5" />Send Message
+              <Send aria-hidden="true" className="size-5" />Contact Me
             </a>
             <a
               href="/Gourav_Takk_Resume.pdf"
@@ -1498,8 +1539,8 @@ export function Contact() {
         </div>
 
         {/* Right: Social Orbit with Concentric Rings */}
-        <div className="flex-1 flex justify-center items-center w-full mt-6 lg:mt-0">
-          <div className="scale-75 sm:scale-90 md:scale-100 xl:scale-105 origin-center transition-transform duration-500">
+        <div className="contact-orbit flex-1 flex justify-center items-center w-full min-w-0 mt-6 lg:mt-0">
+          <div className="contact-orbit-scale scale-75 sm:scale-90 md:scale-100 xl:scale-105 origin-center transition-transform duration-500">
             <div className="relative w-[400px] h-[400px] flex items-center justify-center">
               {[100, 160, 220, 280, 340].map((diameter, i) => (
                 <div
@@ -1548,6 +1589,7 @@ export function Contact() {
                         animation: `counter-spin ${item.speed}s linear infinite`,
                       }}
                       title={item.name}
+                      aria-label={item.name}
                     >
                       <item.icon className="size-5" style={{ color: item.color }} />
                       <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/90 text-white text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-30">
@@ -1570,10 +1612,11 @@ export function Contact() {
    ================================================================ */
 export function Services() {
   const items = [
-    { icon: Code2, title: "Web Development", desc: "End-to-end websites with modern stacks, responsive layouts and industry best practices.", color: "#00ff66" },
-    { icon: Layout, title: "Frontend Development", desc: "Pixel-perfect React & Next.js interfaces with high-performance animations and full responsiveness.", color: "#00ffff" },
-    { icon: Server, title: "Backend Development", desc: "REST APIs and server integrations using Node.js and database fundamentals.", color: "#ff00ff" },
-    { icon: Palette, title: "Website Design", desc: "Clean, modern UI design with careful attention to typography, micro-animations and spacing.", color: "#ffcc00" },
+    { id: "responsive-development", icon: Code2, title: "Responsive Website Development", desc: "Mobile, tablet, and desktop layouts that keep your content readable and navigation easy to use. Built with HTML, CSS, React, or Next.js to suit your project.", projectSlug: "portfolio-v1", projectLabel: "Explore Portfolio v1", color: "#00ff66" },
+    { id: "frontend-development", icon: Layout, title: "Frontend Development", desc: "React and Next.js interfaces with reusable components, clear interactions, and thoughtful animations. Turn a design or product idea into a usable frontend.", projectSlug: "e-commerce-ui", projectLabel: "Explore E-Commerce UI", color: "#00ffff" },
+    { id: "business-websites", icon: Building2, title: "Business Websites", desc: "Service pages and landing pages that explain your offer, showcase your work, and guide visitors to an enquiry. A practical online presence for businesses in Jodhpur and beyond.", projectSlug: "saas-landing-page", projectLabel: "Explore SaaS Landing Page", color: "#ff00ff" },
+    { id: "website-design", icon: Palette, title: "Website Design", desc: "Clear page layouts with readable typography, consistent spacing, and your existing branding. Make it easier for visitors to find your services, understand them, and get in touch.", projectSlug: "portfolio-v1", projectLabel: "Explore Portfolio v1", color: "#ffcc00" },
+    { id: "backend-integrations", icon: Server, title: "Backend Integrations", desc: "Support for REST APIs and server integrations using Node.js and database fundamentals, with scope agreed around your project requirements.", color: "#38bdf8" },
   ];
 
   return (
@@ -1581,21 +1624,28 @@ export function Services() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-10 sm:mb-12">
           <h2 className="text-3xl md:text-5xl font-bold font-montserrat tracking-tight text-black dark:text-white">
-            SERVICES
+            WEBSITE DEVELOPMENT SERVICES
           </h2>
           <div className="h-[2px] w-20 mt-4 bg-zinc-900 dark:bg-[#00ff66]" />
+          <p className="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Need website development in Jodhpur? I offer website design, responsive development,
+            and frontend implementation for personal and business websites. Start with your goals,
+            content, and the actions you want visitors to take, then choose the scope that fits.
+          </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {items.map((s) => (
-            <div key={s.title} className="service-card group rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-6 hover:-translate-y-2 transition-all duration-300 shadow-md">
+            <article key={s.title} id={s.id} className="service-card group rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-6 hover:-translate-y-2 transition-all duration-300 shadow-md">
               <div className="size-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: `${s.color}15`, border: `1px solid ${s.color}30` }}>
                 <s.icon className="size-6" style={{ color: s.color }} />
               </div>
               <h3 className="font-black text-lg mb-2 text-black dark:text-white font-montserrat">{s.title}</h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">{s.desc}</p>
-            </div>
+              {s.projectSlug && <Link href={`/projects/${s.projectSlug}`} className="mt-4 inline-block text-sm font-bold text-emerald-700 underline underline-offset-4 dark:text-[#00ff66]">{s.projectLabel}</Link>}
+            </article>
           ))}
         </div>
+        <a href="#contact" className="mt-8 inline-flex rounded-full bg-[#00ff66] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#00cc52]">Contact Me About Your Website</a>
       </div>
     </section>
   );
@@ -1618,21 +1668,22 @@ export function Footer() {
           <p className="text-xs text-zinc-500 mt-1">© {new Date().getFullYear()} Gourav Takk. All Rights Reserved. (+91 63770 93772 | takkgourav@gmail.com)</p>
         </div>
 
-        <nav className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-semibold uppercase tracking-wider text-zinc-500">
-          {["home", "about", "skills", "projects", "experience", "education", "contact"].map((s) => (
+        <nav aria-label="Footer" className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-semibold uppercase tracking-wider text-zinc-500">
+          {["home", "about", "skills", "projects", "services", "experience", "education", "contact"].map((s) => (
             <a key={s} href={`#${s}`} className="hover:text-[#00ff66] transition-colors">{s}</a>
           ))}
         </nav>
 
         <div className="flex gap-3">
           {[
-            { icon: Github, href: "https://github.com/takkgourav-cmyk" },
-            { icon: Linkedin, href: "https://www.linkedin.com/in/gourav-takk-674abb367" },
-            { icon: Mail, href: "mailto:takkgourav@gmail.com" },
-            { icon: Phone, href: "tel:+916377093772" },
-          ].map(({ icon: Icon, href }, i) => (
+            { icon: Github, href: "https://github.com/takkgourav-cmyk", label: "Gourav Takk on GitHub" },
+            { icon: Linkedin, href: "https://www.linkedin.com/in/gourav-takk-674abb367", label: "Gourav Takk on LinkedIn" },
+            { icon: Mail, href: "mailto:takkgourav@gmail.com", label: "Email Gourav Takk" },
+            { icon: Phone, href: "tel:+916377093772", label: "Call Gourav Takk" },
+          ].map(({ icon: Icon, href, label }, i) => (
             <a
               key={i} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer"
+              aria-label={label}
               className="p-2.5 rounded-full border border-black/10 dark:border-white/10 hover:border-[#00ff66] hover:text-[#00ff66] transition-all shadow-sm"
             >
               <Icon className="size-4" />

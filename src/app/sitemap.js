@@ -1,10 +1,10 @@
 import { projects } from "@/components/portfolio/projectsData";
-import { SITE_URL, projectUrl } from "@/lib/seo";
+import { absoluteUrl, projectUrl } from "@/lib/seo";
 
 export default function sitemap() {
   const routes = [
     {
-      url: SITE_URL,
+      url: absoluteUrl("/"),
       changeFrequency: "weekly",
       priority: 1,
     },

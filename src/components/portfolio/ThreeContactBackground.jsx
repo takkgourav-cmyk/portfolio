@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { loadThree } from "@/lib/load-three";
 
 export default function ThreeContactBackground() {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    // The contact background is decorative and hidden on mobile.
+    if (!window.matchMedia("(min-width: 768px)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let animId;
     let renderer, scene, camera, mesh;
     let isDisposed = false;
+    let removeListeners;
+    let isVisible = false;
+    let started = false;
     let mouse = { x: 0, y: 0 };
 
     const init = (THREE) => {
@@ -81,6 +87,7 @@ export default function ThreeContactBackground() {
       const animate = () => {
         if (isDisposed) return;
         animId = requestAnimationFrame(animate);
+        if (document.hidden || !isVisible) return;
 
         camera.position.x += (mouse.x - camera.position.x) * 0.05;
         camera.position.y += (-mouse.y + 180 - camera.position.y) * 0.05;
@@ -109,23 +116,28 @@ export default function ThreeContactBackground() {
       };
     };
 
-    if (typeof window !== "undefined") {
-      if (window.THREE) {
-        init(window.THREE);
-      } else {
-        const script = document.createElement("script");
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
-        script.async = true;
-        script.onload = () => {
-          if (window.THREE) init(window.THREE);
-        };
-        document.head.appendChild(script);
-      }
-    }
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (!isVisible || started) return;
+      started = true;
+      loadThree().then((THREE) => {
+        if (!isDisposed) removeListeners = init(THREE);
+      }).catch(() => {
+        // Keep the contact links usable if WebGL or the CDN is unavailable.
+      });
+    }, { rootMargin: "200px" });
+    if (containerRef.current) observer.observe(containerRef.current);
 
     return () => {
       isDisposed = true;
+      observer.disconnect();
+      removeListeners?.();
       if (animId) cancelAnimationFrame(animId);
+      scene?.traverse((object) => {
+        object.geometry?.dispose();
+        object.material?.dispose();
+      });
+      renderer?.dispose();
       if (renderer && renderer.domElement && containerRef.current) {
         try {
           containerRef.current.removeChild(renderer.domElement);

@@ -10,6 +10,7 @@ const links = [
   { href: "#about", label: "About" },
   { href: "#skills", label: "Skills" },
   { href: "#projects", label: "Projects" },
+  { href: "#services", label: "Services" },
   { href: "#experience", label: "Experience" },
   { href: "#education", label: "Education" },
   { href: "#contact", label: "Contact" },
@@ -26,6 +27,17 @@ export function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        document.getElementById("menu-toggle")?.focus();
+      }
+    };
+    if (open) window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   useEffect(() => {
     const sections = links.map((l) => l.href.replace("#", ""));
@@ -52,6 +64,7 @@ export function Navbar() {
 
   return (
     <nav
+      aria-label="Main navigation"
       className={`fixed top-0 left-0 w-full px-6 md:px-12 flex justify-between items-center z-50 transition-all duration-300 ${
         scrolled
           ? "py-3 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-b border-black/10 dark:border-white/10 shadow-md"
@@ -59,7 +72,7 @@ export function Navbar() {
       } text-black dark:text-white`}
     >
       {/* Logo: <GOURAV TAKK_/> */}
-      <div className="text-xl md:text-2xl font-bold tracking-wider font-mono">
+      <div className="text-base sm:text-xl xl:text-2xl font-bold tracking-wider font-mono">
         <a
           href="#home"
           onClick={(e) => scrollToSection(e, "#home")}
@@ -73,13 +86,14 @@ export function Navbar() {
       </div>
 
       {/* Desktop Links */}
-      <ul className="hidden md:flex items-center gap-8 list-none font-inter">
+      <ul className="hidden xl:flex items-center gap-4 2xl:gap-6 list-none font-inter">
         {links.map((l) => {
           const isActive = activeSection === l.href.replace("#", "");
           return (
             <li key={l.href}>
               <a
                 href={l.href}
+                aria-current={isActive ? "location" : undefined}
                 onClick={(e) => scrollToSection(e, l.href)}
                 className={`nav-link group relative text-sm font-semibold uppercase tracking-widest transition-colors pb-1 ${
                   isActive
@@ -108,11 +122,15 @@ export function Navbar() {
       </ul>
 
       {/* Mobile Nav Toggle */}
-      <div className="md:hidden flex items-center gap-3">
+      <div className="xl:hidden flex items-center gap-3">
         <button
           className="p-2 rounded-lg border border-black/10 dark:border-white/20 text-black dark:text-white"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
+          id="menu-toggle"
+          type="button"
+          aria-expanded={open}
+          aria-controls="mobile-menu"
         >
           {open ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
@@ -120,11 +138,12 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-black/10 dark:border-white/10 p-6 shadow-2xl flex flex-col gap-4">
+        <div id="mobile-menu" className="xl:hidden absolute top-full left-0 w-full max-h-[calc(100dvh-80px)] overflow-y-auto bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-black/10 dark:border-white/10 p-6 shadow-2xl flex flex-col gap-2">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
+              aria-current={activeSection === l.href.slice(1) ? "location" : undefined}
               onClick={(e) => scrollToSection(e, l.href)}
               className="text-base font-bold uppercase tracking-wider py-2 text-black/80 dark:text-white/80 hover:text-[#00ff66]"
             >

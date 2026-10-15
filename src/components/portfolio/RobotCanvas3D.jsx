@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { loadThree } from "@/lib/load-three";
 
 export default function RobotCanvas3D() {
   const containerRef = useRef(null);
@@ -13,6 +14,12 @@ export default function RobotCanvas3D() {
     let particleSystem;
     let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let isDisposed = false;
+    let removeListeners;
+    let isVisible = true;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const observer = new IntersectionObserver(([entry]) => { isVisible = entry.isIntersecting; });
+    if (containerRef.current) observer.observe(containerRef.current);
 
     const init = (THREE) => {
       if (!containerRef.current || isDisposed) return;
@@ -25,9 +32,9 @@ export default function RobotCanvas3D() {
       camera.position.set(0, 0.4, 6.8);
 
       // 2. Renderer
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true, powerPreference: "default" });
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 2));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.3;
 
@@ -281,7 +288,8 @@ export default function RobotCanvas3D() {
       let clock = new THREE.Clock();
       const animate = () => {
         if (isDisposed) return;
-        animId = requestAnimationFrame(animate);
+        if (!reducedMotion) animId = requestAnimationFrame(animate);
+        if (!reducedMotion && (document.hidden || !isVisible)) return;
 
         const t = clock.getElapsedTime();
 
@@ -341,23 +349,31 @@ export default function RobotCanvas3D() {
       };
     };
 
-    if (typeof window !== "undefined") {
-      if (window.THREE) {
-        init(window.THREE);
-      } else {
-        const script = document.createElement("script");
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
-        script.async = true;
-        script.onload = () => {
-          if (window.THREE) init(window.THREE);
-        };
-        document.head.appendChild(script);
-      }
-    }
+    const start = () => {
+      loadThree().then((THREE) => {
+        if (!isDisposed) removeListeners = init(THREE);
+      }).catch(() => {
+        // A decorative canvas must never block the portfolio content.
+      });
+    };
+    const usesIdleCallback = "requestIdleCallback" in window;
+    const startId = usesIdleCallback
+      ? window.requestIdleCallback(start, { timeout: 1200 })
+      : window.setTimeout(start, 250);
 
     return () => {
       isDisposed = true;
+      if (usesIdleCallback) window.cancelIdleCallback(startId);
+      else window.clearTimeout(startId);
+      observer.disconnect();
+      removeListeners?.();
       if (animId) cancelAnimationFrame(animId);
+      scene?.traverse((object) => {
+        object.geometry?.dispose();
+        const materials = Array.isArray(object.material) ? object.material : [object.material];
+        materials.forEach((material) => material?.dispose());
+      });
+      renderer?.dispose();
       if (renderer && renderer.domElement && containerRef.current) {
         try {
           containerRef.current.removeChild(renderer.domElement);
@@ -372,7 +388,7 @@ export default function RobotCanvas3D() {
     <div
       ref={containerRef}
       className="w-full h-full relative cursor-grab active:cursor-grabbing"
-      style={{ touchAction: "none" }}
+      style={{ touchAction: "pan-y" }}
     />
   );
 }

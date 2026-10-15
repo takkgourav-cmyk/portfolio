@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-const INTRO_DURATION = 4800;
-
 export function HelloIntro() {
   const [visible, setVisible] = useState(true);
   const introRef = useRef(null);
@@ -14,10 +12,23 @@ export function HelloIntro() {
   const flareRef = useRef(null);
 
   useEffect(() => {
+    if (!visible) return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let hasSeenIntro = false;
+    try {
+      hasSeenIntro = sessionStorage.getItem("portfolio-intro-seen") === "true";
+      sessionStorage.setItem("portfolio-intro-seen", "true");
+    } catch {
+      // The portfolio remains usable when browser storage is disabled.
+    }
+    if (reducedMotion || hasSeenIntro || window.location.hash) {
+      setVisible(false);
+      return;
+    }
+    gsap.set(introRef.current, { display: "flex" });
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const site = introRef.current?.nextElementSibling;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (site && !reducedMotion) {
       gsap.set(site, { opacity: 0.35, scale: 0.96, y: 28, filter: "blur(10px)" });
@@ -32,19 +43,36 @@ export function HelloIntro() {
       },
     });
 
-    if (reducedMotion) {
-      timeline.to({}, { duration: INTRO_DURATION / 1000 });
-    } else {
-      timeline
-        .to(wordRef.current, { scale: 1.08, opacity: 0, y: -12, duration: 0.42, ease: "power2.in" }, 3.15)
-        .fromTo(flareRef.current, { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1, duration: 0.28, ease: "power3.out" }, 3.12)
-        .to(flareRef.current, { scaleX: 18, opacity: 0, duration: 0.72, ease: "power3.inOut" }, 3.36)
-        .to(leftPanelRef.current, { xPercent: -102, rotate: -2, duration: 1.15, ease: "power4.inOut" }, 3.3)
-        .to(rightPanelRef.current, { xPercent: 102, rotate: 2, duration: 1.15, ease: "power4.inOut" }, 3.3);
+    timeline
+      .to(
+        wordRef.current,
+        { scale: 1.08, opacity: 0, y: -12, duration: 0.42, ease: "power2.in" },
+        3.15,
+      )
+      .fromTo(
+        flareRef.current,
+        { scaleY: 0, opacity: 0 },
+        { scaleY: 1, opacity: 1, duration: 0.28, ease: "power3.out" },
+        3.12,
+      )
+      .to(flareRef.current, { scaleX: 18, opacity: 0, duration: 0.72, ease: "power3.inOut" }, 3.36)
+      .to(
+        leftPanelRef.current,
+        { xPercent: -102, rotate: -2, duration: 1.15, ease: "power4.inOut" },
+        3.3,
+      )
+      .to(
+        rightPanelRef.current,
+        { xPercent: 102, rotate: 2, duration: 1.15, ease: "power4.inOut" },
+        3.3,
+      );
 
-      if (site) {
-        timeline.to(site, { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", duration: 1.1, ease: "power3.out" }, 3.42);
-      }
+    if (site) {
+      timeline.to(
+        site,
+        { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", duration: 1.1, ease: "power3.out" },
+        3.42,
+      );
     }
 
     return () => {
@@ -52,7 +80,7 @@ export function HelloIntro() {
       if (site) gsap.set(site, { clearProps: "opacity,scale,y,filter" });
       document.body.style.overflow = previousOverflow;
     };
-  }, []);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -75,9 +103,17 @@ export function HelloIntro() {
         </div>
       </div>
       <div ref={flareRef} className="hello-intro-flare" />
+      <button
+        type="button"
+        onClick={() => setVisible(false)}
+        className="absolute bottom-8 right-6 z-10 rounded-full border border-white/50 bg-black/40 px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-white"
+      >
+        Skip intro
+      </button>
 
       <style>{`
         .hello-intro-screen {
+          display: none;
           background: transparent;
           perspective: 1200px;
         }
